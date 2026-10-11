@@ -4,14 +4,14 @@
    als wiederkehrendes Motiv. Bewusst nur ein (dunkles) Farbbild.
    ========================================================= */
 :root{
-  --bg:#141213;          /* Anthrazit, fast schwarz */
-  --bg-2:#1b1819;        /* Abschnitte */
-  --card:#221f20;        /* Karten */
-  --line:#363132;        /* Linien */
-  --fg:#f3efec;          /* Text */
-  --muted:#aaa19c;       /* Nebentext */
-  --copper:#d98b4d;      /* Kupfer hell */
-  --copper-2:#a95a2b;    /* Kupfer dunkel */
+  --bg:#f7f4f0;          /* heller, warmer Grund */
+  --bg-2:#eee8e1;        /* Abschnitte */
+  --card:#ffffff;        /* Karten */
+  --line:#ded6cd;        /* Linien */
+  --fg:#25211f;          /* Text (Logo-Anthrazit) */
+  --muted:#6a615b;       /* Nebentext */
+  --copper:#c4733a;      /* Kupfer */
+  --copper-2:#9a4f22;    /* Kupfer dunkel */
   --red:#e3342b;         /* Logo-Rot */
   --ok:#3cc37a;
   --f-display:"Ubuntu","Trebuchet MS",system-ui,sans-serif;
@@ -21,7 +21,7 @@
   --max:1200px;
   --ease:cubic-bezier(.2,.8,.2,1);
   --glow:0 0 0 1px rgba(217,139,77,.35),0 20px 50px -20px rgba(217,139,77,.55);
-  color-scheme:dark;
+  color-scheme:light;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;background:var(--bg)}
@@ -73,8 +73,8 @@ section{position:relative}
 
 /* ---------- Kopfzeile ---------- */
 .progress{position:fixed;top:0;left:0;height:3px;width:100%;z-index:60;background:linear-gradient(90deg,var(--copper),var(--red));transform-origin:left;transform:scaleX(0)}
-header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:rgba(20,18,19,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:border-color .3s,background .3s}
-header.top.scrolled{border-color:var(--line);background:rgba(20,18,19,.9)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:rgba(247,244,240,.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:border-color .3s,background .3s}
+header.top.scrolled{border-color:var(--line);background:rgba(247,244,240,.94)}
 .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;height:74px;transition:height .3s var(--ease)}
 header.scrolled .nav{height:62px}
 .brand{display:block;width:108px;flex:none;transition:width .3s var(--ease)}
@@ -114,7 +114,7 @@ header.scrolled .brand{width:90px}
 /* ---------- Hero ---------- */
 .hero{padding-block:clamp(40px,6vw,90px) clamp(50px,7vw,100px);overflow:hidden;isolation:isolate}
 .hero-bg{position:absolute;inset:0;z-index:-1;pointer-events:none}
-.hero-bg .grid{position:absolute;inset:-20%;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse at 60% 40%,#000 20%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at 60% 40%,#000 20%,transparent 70%);animation:gridmove 30s linear infinite}
+.hero-bg .grid{position:absolute;inset:-20%;background-image:linear-gradient(rgba(37,33,31,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(37,33,31,.05) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse at 60% 40%,#000 20%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at 60% 40%,#000 20%,transparent 70%);animation:gridmove 30s linear infinite}
 @keyframes gridmove{to{transform:translate(56px,56px)}}
 .hero-bg .glowblob{position:absolute;width:60vw;height:60vw;max-width:800px;max-height:800px;right:-15vw;top:-20vw;background:radial-gradient(circle,rgba(217,139,77,.22),transparent 60%);animation:breathe 8s ease-in-out infinite}
 @keyframes breathe{50%{transform:scale(1.15);opacity:.7}}
@@ -145,7 +145,7 @@ header.scrolled .brand{width:90px}
 .hero-art .roofline path{fill:none;stroke-width:14;stroke-linecap:square;stroke-dasharray:1000;stroke-dashoffset:1000;transition:stroke-dashoffset 1.6s var(--ease) .4s}
 .hero.go .roofline path{stroke-dashoffset:0}
 .hero-art .chip{position:absolute;right:-2%;top:46%;background:var(--card);border:1px solid var(--line);padding:10px 14px;border-radius:40px;font:600 .82rem var(--f-label);letter-spacing:.1em;text-transform:uppercase;display:flex;gap:8px;align-items:center;animation:float 6s 1s ease-in-out infinite}
-.hero-art .stars{position:absolute;left:-4%;bottom:8%;background:var(--fg);color:#1a1112;padding:14px 18px;border-radius:10px;box-shadow:0 20px 40px -20px rgba(0,0,0,.7);animation:float 5s ease-in-out infinite}
+.hero-art .stars{position:absolute;left:-4%;bottom:8%;background:var(--card);color:var(--fg);border:1px solid var(--line);padding:14px 18px;border-radius:10px;box-shadow:0 20px 40px -20px rgba(60,40,20,.35);animation:float 5s ease-in-out infinite}
 .hero-art .stars b{font:700 1.25rem var(--f-display);display:block}
 .hero-art .stars span{color:#e0a100;letter-spacing:2px}
 .tag-ill{position:absolute;right:10px;bottom:10px;font:600 .68rem var(--f-label);letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.8);background:rgba(0,0,0,.35);padding:4px 8px;border-radius:4px;z-index:2}
@@ -229,8 +229,8 @@ header.scrolled .brand{width:90px}
 .ba{grid-column:span 2}
 .ba .pane{position:absolute;inset:0}
 .ba .after{clip-path:inset(0 0 0 var(--pos,50%))}
-.ba .handle{position:absolute;top:0;bottom:0;left:var(--pos,50%);width:3px;background:var(--fg);transform:translateX(-50%);pointer-events:none;z-index:3}
-.ba .handle::after{content:"◀ ▶";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--fg);color:#1a1112;font-size:.7rem;letter-spacing:2px;padding:10px 10px;border-radius:30px;white-space:nowrap}
+.ba .handle{position:absolute;top:0;bottom:0;left:var(--pos,50%);width:3px;background:#fff;transform:translateX(-50%);pointer-events:none;z-index:3}
+.ba .handle::after{content:"◀ ▶";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;color:#1a1112;font-size:.7rem;letter-spacing:2px;padding:10px 10px;border-radius:30px;white-space:nowrap}
 .ba input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:4;margin:0}
 .ba .lbl{position:absolute;top:12px;font:700 .75rem var(--f-label);letter-spacing:.14em;text-transform:uppercase;background:rgba(10,9,9,.7);padding:6px 10px;border-radius:4px;z-index:2}
 .ba .lbl.l{left:12px}.ba .lbl.r{right:12px;background:var(--copper);color:#1a1112}
@@ -301,7 +301,7 @@ textarea{min-height:120px;resize:vertical}
 .qa .a p{padding:0 22px 20px;color:var(--muted)}
 
 /* ---------- Footer ---------- */
-footer{background:#0f0d0e;padding-block:70px 30px;border-top:1px solid var(--line)}
+footer{background:var(--bg-2);padding-block:70px 30px;border-top:1px solid var(--line)}
 .fgrid{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:36px}
 .flogo{width:150px}
 .fgrid h4{font:700 .85rem var(--f-label);letter-spacing:.16em;text-transform:uppercase;color:var(--copper);margin:0 0 14px}
@@ -344,7 +344,7 @@ footer{background:#0f0d0e;padding-block:70px 30px;border-top:1px solid var(--lin
 .fab .wa{background:#1f9d55}
 .fab .up{background:var(--copper);color:#1a1112}
 .fab svg{width:24px;height:24px}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,150%);opacity:0;pointer-events:none;background:var(--fg);color:#1a1112;padding:12px 18px;border-radius:8px;font-weight:600;z-index:96;transition:transform .4s var(--ease),opacity .4s}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,150%);opacity:0;pointer-events:none;background:var(--fg);color:#fff;padding:12px 18px;border-radius:8px;font-weight:600;z-index:96;transition:transform .4s var(--ease),opacity .4s}
 .toast.show{transform:translate(-50%,0);opacity:1}
 .preview-note{background:var(--copper);color:#1a1112;font:500 .85rem/1.4 var(--f-body);text-align:center;padding:8px 44px 8px 16px;position:relative}
 .preview-note button{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:0;color:inherit;font-size:1.2rem;cursor:pointer;width:32px;height:32px}
@@ -353,3 +353,14 @@ footer{background:#0f0d0e;padding-block:70px 30px;border-top:1px solid var(--lin
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
 @media (max-width:620px){.fab a,.fab button{width:46px;height:46px}.fab svg{width:20px;height:20px}}
+
+/* Heller Hintergrund: Bildunterschriften bleiben auf dunklem Verlauf weiß */
+.ref figcaption{color:#fff}
+.ref figcaption p{color:rgba(255,255,255,.82)}
+.ref figcaption span{color:#f0a868}
+.hero-logo{filter:drop-shadow(0 0 18px rgba(227,52,43,.25)) drop-shadow(0 0 50px rgba(196,115,58,.22))}
+@keyframes glow{50%{filter:drop-shadow(0 0 26px rgba(227,52,43,.4)) drop-shadow(0 0 70px rgba(196,115,58,.32))}}
+.info.key{background:linear-gradient(135deg,rgba(196,115,58,.18),rgba(154,79,34,.06))}
+.info.key .st,.hero-art .stars span{color:#d89a00}
+.hero-art .chip{box-shadow:0 12px 30px -16px rgba(60,40,20,.35)}
+.svc,.feature,.qa,.way,form,.table,.ref{box-shadow:0 10px 30px -22px rgba(60,40,20,.35)}
