@@ -364,3 +364,19 @@ footer{background:var(--bg-2);padding-block:70px 30px;border-top:1px solid var(-
 .info.key .st,.hero-art .stars span{color:#d89a00}
 .hero-art .chip{box-shadow:0 12px 30px -16px rgba(60,40,20,.35)}
 .svc,.feature,.qa,.way,form,.table,.ref{box-shadow:0 10px 30px -22px rgba(60,40,20,.35)}
+
+/* Handy: weniger Bewegung. Kein Parallax, keine Partikel, keine schwebenden Elemente,
+   Inhalte blenden nur sanft ein statt seitlich hereinzufahren. */
+@media (max-width:860px){
+  .hero-bg .grid,.hero-bg .glowblob,.hero-art .chip,.hero-art .stars,.hero-logo{animation:none}
+  .hero-bg canvas{display:none}
+  .hero-bg .lines,.hero-art .layer{transform:none!important;translate:none!important}
+  .hero-art .layer{inset:0}
+  .js [data-reveal],.js [data-reveal="left"],.js [data-reveal="right"],.js [data-reveal="zoom"]{transform:none;transition:opacity .6s ease}
+  .js .row{transform:none}
+  .hero h1 .w>span{transform:none;transition:none}
+  .fade{transform:none}
+  .svc:hover,.js .svc.in:hover,.feature:hover,.way:hover{transform:none}
+  .ref:hover svg.scene{transform:none}
+  .shiny .kb-shine{animation:shine 6s 1.5s var(--ease) 1 forwards}
+}

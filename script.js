@@ -5,6 +5,8 @@
 "use strict";
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* Handy: ruhigere Version ohne Parallax und Partikel */
+const calm=()=>matchMedia("(max-width: 860px)").matches;
 document.documentElement.classList.add("js");
 
 /* ---------- Öffnungszeiten (exakt laut Vorgabe) ----------
@@ -189,7 +191,7 @@ function onScroll(){
   prog.style.transform=`scaleX(${max>0?y/max:0})`;
   header.classList.toggle("scrolled",y>20);
   fab.classList.toggle("show",y>innerHeight*.6);
-  if(!reduce&&y<innerHeight*1.5){
+  if(!reduce&&!calm()&&y<innerHeight*1.5){
     layers.forEach(l=>l.style.transform=`translate3d(0,${y*+l.dataset.depth}px,0)`);
     bgLayers.forEach(l=>l.style.transform=`translate3d(0,${y*+l.dataset.depth}px,0)`);
   }
@@ -208,7 +210,7 @@ if(!reduce&&matchMedia("(hover:hover)").matches){
 
 /* ---------- Partikel im Hero (Canvas) ---------- */
 const cv=$("#particles");
-if(cv&&cv.getContext&&!reduce){
+if(cv&&cv.getContext&&!reduce&&!calm()){
   const ctx=cv.getContext("2d");let W=0,H=0,dpr=Math.min(2,devicePixelRatio||1),pts=[],running=true;
   function size(){W=cv.offsetWidth;H=cv.offsetHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
     pts=Array.from({length:Math.round(W*H/22000)},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.4,vy:-(Math.random()*.25+.05),vx:(Math.random()-.5)*.15,a:Math.random()*.5+.15}))}
