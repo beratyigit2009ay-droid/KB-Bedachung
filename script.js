@@ -99,14 +99,7 @@ function scene(kind){
   else if(kind==="new")s+=box(id,{x:200,y:240,w:340,h:190,roof:"foil",door:true});
   return s+`<path d="M0 470Q400 440 800 470V500H0Z" fill="rgba(0,0,0,.12)"/></svg>`;
 }
-function heroLayers(){
-  const id=++uid,W=600,H=620;
-  $("#lSky").innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice"><defs>${skyBlock(id,"dusk")}</defs><rect width="${W}" height="${H}" fill="url(#sky${id})"/><circle cx="420" cy="380" r="170" fill="url(#sun${id})"/>${clouds(W,H,4,.35)}</svg>`;
-  $("#lFar").innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">${farRow(W,520,"#5b3a52",1)}${farRow(W,560,"#3d2a40",5)}</svg>`;
-  const id2=++uid;
-  $("#lNear").innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice"><defs>${patterns(id2)}</defs><path d="M0 560Q300 530 600 555V620H0Z" fill="#2b2433"/>${box(id2,{x:70,y:400,w:300,h:170,d:110,dy:44,roof:"foil",door:true,roofer:true,wall:"#f1e2d2",side:"#d7bfa8"})}${trees([[540,30],[40,22]],575,"#2f3b2e")}</svg>`;
-}
-heroLayers();
+
 
 /* ---------- Leistungen (SVG-Icons) ---------- */
 const SVC=[
@@ -120,9 +113,17 @@ const SVC=[
 $("#services").innerHTML=SVC.map(([t,p,ico],i)=>`<article class="svc" data-reveal style="--d:${(i%3)*.1}s"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ico}</svg></div><h3>${t}</h3><p>${p}</p></article>`).join("");
 
 /* ---------- Referenzen + Vorher/Nachher ---------- */
-const REFS=[["flat","Flachdach mit Folie","Flachdach","Neue Abdichtung mit Dachfolie."],["garage","Garagendach","Foliendach","Garage mit neuem Foliendach."],["terrace","Dachterrasse","Terrasse","Terrassenabdichtung mit Folie und Belag."],["domes","Flachdach mit Lichtkuppeln","Flachdach","Folienabdichtung mit dichten Anschlüssen."]];
-const cards=REFS.map(([k,t,m,p],i)=>`<figure class="ref" tabindex="0" data-reveal style="--d:${(i%3)*.1}s">${scene(k)}<span class="tag-ill">Illustration</span><figcaption><span>${m}</span><b>${t}</b><p>${p}</p></figcaption></figure>`);
-cards.splice(3,0,`<figure class="ref ba" data-reveal style="--d:.1s"><div class="pane before">${scene("old")}</div><div class="pane after">${scene("new")}</div><span class="lbl l">Vorher</span><span class="lbl r">Nachher</span><div class="handle"></div><input type="range" min="0" max="100" value="50" aria-label="Vorher/Nachher vergleichen"><figcaption><span>Vorher / Nachher</span><b>Flachdachsanierung</b></figcaption></figure>`);
+const REFS=[
+  ["abdichtung-brenner","Abdichtung mit dem Brenner","Flachdach","Bitumenbahn wird verschweißt und am Rand sauber angeschlossen.","Dachdecker verlegt Bitumenbahn mit dem Brenner"],
+  ["foliendach-hell","Großes Foliendach","Foliendach","Flachdach mit heller Kunststofffolie, mit Absturzsicherung.","Großes Flachdach mit heller Dachfolie"],
+  ["laubengang","Laubengang abgedichtet","Balkon","Abdichtung mit Gitterrost über der Entwässerung.","Abgedichteter Laubengang mit Geländer und Gitterrost"],
+  ["neubau-flachdach","Neubau mitten im Baugebiet","Neubau","Bitumenabdichtung auf einem Neubau, die Kräne noch nebenan.","Neubau-Flachdach mit Bitumenbahnen und Baukränen"],
+  ["kiesdach-lichtkuppel","Kiesdach mit Lichtkuppel","Flachdach","Kiesschüttung, Lichtkuppel und dichte Anschlüsse am Mauerwerk.","Flachdach mit Kies, Lichtkuppel und Kupferattika"],
+  ["gewerbedach","Gewerbedach mit Lichtkuppeln","Gewerbe","Große Dachfläche mit mehreren Lichtkuppeln und Abläufen.","Gewerbliches Flachdach mit Lichtkuppeln"],
+  ["anschluss-fassade","Anschluss an die Fassade","Flachdach","Beschieferte Bahn, sauber an die Metallwand angeschlossen.","Flachdach mit roter Schieferbahn an einer Metallfassade"]
+];
+const cards=REFS.map(([f,t,m,p,alt],i)=>`<figure class="ref" tabindex="0" data-reveal style="--d:${(i%3)*.1}s"><img class="photo" src="assets/img/${f}.jpg" alt="${alt}" loading="lazy" decoding="async"><figcaption><span>${m}</span><b>${t}</b><p>${p}</p></figcaption></figure>`);
+cards.splice(3,0,`<figure class="ref ba" data-reveal style="--d:.1s"><div class="pane before">${scene("old")}</div><div class="pane after">${scene("new")}</div><span class="tag-ill">Illustration</span><span class="lbl l">Vorher</span><span class="lbl r">Nachher</span><div class="handle"></div><input type="range" min="0" max="100" value="50" aria-label="Vorher/Nachher vergleichen"><figcaption><span>Vorher / Nachher</span><b>Flachdachsanierung</b></figcaption></figure>`);
 $("#refs").innerHTML=cards.join("");
 const ba=$(".ba"),baIn=$(".ba input");
 baIn.addEventListener("input",()=>ba.style.setProperty("--pos",baIn.value+"%"));
