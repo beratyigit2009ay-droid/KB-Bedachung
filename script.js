@@ -175,9 +175,7 @@ const REFS=[
   ["gewerbedach","Gewerbedach mit Lichtkuppeln","Gewerbe","Große Dachfläche mit mehreren Lichtkuppeln und Abläufen.","Gewerbliches Flachdach mit Lichtkuppeln"],
   ["anschluss-fassade","Anschluss an die Fassade","Flachdach","Beschieferte Bahn, sauber an die Metallwand angeschlossen.","Flachdach mit roter Schieferbahn an einer Metallfassade"]
 ];
-const roofSvg='<svg class="pc-roof" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><path class="d" d="M1 23L50 1"/><path class="r" d="M50 1L99 23"/></svg>';
-const pcard=(r,i,dup)=>`<button type="button" class="pc" data-i="${i}" style="--i:${i}"${dup?' aria-hidden="true" tabindex="-1"':''}><span class="pc-img"><img src="assets/img/${r[0]}.jpg" alt="${dup?"":r[4]}" loading="lazy" decoding="async"></span>${roofSvg}<span class="pc-cap"><span>${r[2]}</span><b>${r[1]}</b></span></button>`;
-$("#track").innerHTML=REFS.map((r,i)=>pcard(r,i)).join("")+REFS.map((r,i)=>pcard(r,i,1)).join("");
+$("#stage").innerHTML=REFS.map((r,i)=>`<button type="button" class="pc" data-i="${i}" aria-label="${r[1]} groß ansehen"><img src="assets/img/${r[0]}.jpg" alt="${r[4]}" ${i>1?'loading="lazy"':''} decoding="async"><span class="pc-shine"></span></button>`).join("");
 const cards=[];
 cards.push(`<figure class="ref ba" data-reveal style="--d:.1s"><div class="pane before">${scene("old")}</div><div class="pane after">${scene("new")}</div><span class="tag-ill">Illustration</span><span class="lbl l">Vorher</span><span class="lbl r">Nachher</span><div class="handle"></div><input type="range" min="0" max="100" value="50" aria-label="Vorher/Nachher vergleichen"><figcaption><span>Vorher / Nachher</span><b>Flachdachsanierung</b></figcaption></figure>`);
 $("#refs").innerHTML=cards.join("");
@@ -187,14 +185,33 @@ const lb=$("#lb");let lbI=0,lbLast=null;
 function lbShow(i){lbI=(i+REFS.length)%REFS.length;const r=REFS[lbI];$("#lbImg").src=`assets/img/${r[0]}.jpg`;$("#lbImg").alt=r[4];$("#lbTag").textContent=r[2];$("#lbTitle").textContent=r[1];$("#lbText").textContent=r[3]}
 function lbOpen(i){lbLast=document.activeElement;lbShow(i);lb.classList.add("open");document.body.classList.add("locked");$(".lb-x",lb).focus()}
 function lbClose(){if(!lb.classList.contains("open"))return;lb.classList.remove("open");document.body.classList.remove("locked");lbLast&&lbLast.focus()}
-$("#track").addEventListener("click",e=>{const c=e.target.closest(".pc");if(c)lbOpen(+c.dataset.i)});
+$("#stage").addEventListener("click",e=>{const c=e.target.closest(".pc");if(c)lbOpen(+c.dataset.i)});
 $(".lb-x",lb).onclick=lbClose;$(".prev",lb).onclick=()=>lbShow(lbI-1);$(".next",lb).onclick=()=>lbShow(lbI+1);
 lb.addEventListener("click",e=>{if(e.target===lb)lbClose()});
 addEventListener("keydown",e=>{if(!lb.classList.contains("open"))return;if(e.key==="Escape")lbClose();if(e.key==="ArrowLeft")lbShow(lbI-1);if(e.key==="ArrowRight")lbShow(lbI+1)});
 
-/* Fotoband: Schwung beim Scrollen (nur Desktop) */
-(()=>{const tr=$("#track");let lastY=scrollY,sk=0;
-  (function loop(){if(!reduce&&!calm()){const v=scrollY-lastY;lastY=scrollY;sk+=(Math.max(-8,Math.min(8,v*.25))-sk)*.12;tr.style.setProperty("--sk",sk.toFixed(2)+"deg")}else tr.style.setProperty("--sk","0deg");requestAnimationFrame(loop)})();
+/* Fotos: 3D-Flug beim Scrollen */
+(()=>{const box=$("#sc3d"),pcs=$$("#stage .pc"),N=pcs.length;let cur=-1,tick=false;
+  if(reduce){box.classList.add("flat");return}
+  function upd(){tick=false;const m=calm(),r=box.getBoundingClientRect(),run=box.offsetHeight-innerHeight;
+    const t=Math.min(1,Math.max(0,-r.top/run)),raw=t*(N-1),fi=Math.floor(raw),fr=raw-fi,
+      s=fr<.22?0:fr>.78?1:(u=>u*u*(3-2*u))((fr-.22)/.56),p=Math.min(N-1,fi+s);
+    const gap=m?520:1050,sx=m?0:380,rot=m?0:16;
+    pcs.forEach((c,i)=>{const d=i-p,side=i%2?1:-1;
+      const z=d>0?-d*gap:-d*gap*.7,x=d>0?side*d*sx:-side*d*(m?0:520),y=d>0?d*(m?-22:-28):-d*(m?60:40),ry=d>0?-side*Math.min(d,2)*rot:side*d*rot*1.6;
+      let o=d>2.4?Math.max(0,3.2-d):d<0?Math.max(0,1+d*2.6):1;
+      c.style.transform=`translate3d(${x}px,${y}px,${z}px) rotateY(${ry}deg)`;
+      c.style.opacity=o.toFixed(3);c.style.zIndex=100-Math.round(Math.abs(d)*10);
+      c.style.setProperty("--l",Math.max(0,1-Math.abs(d)).toFixed(3));
+      c.style.pointerEvents=Math.abs(d)<.5?"auto":"none";c.tabIndex=Math.abs(d)<.5?0:-1});
+    const k=Math.min(N-1,Math.round(p));
+    if(k!==cur){cur=k;const q=REFS[k];$("#scNum").textContent=String(k+1).padStart(2,"0");$("#scTag").textContent=q[2];$("#scTitle").textContent=q[1];$("#scText").textContent=q[3];
+      const cap=$(".sc-cap");cap.classList.remove("swap");void cap.offsetWidth;cap.classList.add("swap")}
+    $("#scBar").style.transform=`scaleX(${(p/(N-1)).toFixed(3)})`;
+    $("#scHint").classList.toggle("gone",t>.04);
+  }
+  const req=()=>{if(!tick){tick=true;requestAnimationFrame(upd)}};
+  addEventListener("scroll",req,{passive:true});addEventListener("resize",req);upd();
 })();
 const ba=$(".ba"),baIn=$(".ba input");
 baIn.addEventListener("input",()=>ba.style.setProperty("--pos",baIn.value+"%"));

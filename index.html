@@ -92,18 +92,25 @@
   </div>
 </section>
 
-<!-- 2b) REFERENZEN: Fotos -->
-<section class="sec showcase" id="referenzen">
-  <svg class="sc-lines" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden="true"><path d="M-20 360L180 170L380 360L580 120L780 360L980 170L1220 380"/><path d="M-20 400L240 230L460 400L700 190L940 400L1220 240"/></svg>
-  <div class="wrap">
-    <div class="sec-head">
-      <div><p class="label" data-reveal>Referenzen</p><h2 data-reveal style="--d:.1s">Echte Dächer. <span>Echte Baustellen.</span></h2></div>
-      <p data-reveal style="--d:.2s">Fotos von unseren Flachdach-Projekten. Bild antippen oder anklicken, um es groß zu sehen.</p>
+<!-- 2b) REFERENZEN: Fotos in 3D -->
+<section class="showcase" id="referenzen">
+  <div class="sc-3d" id="sc3d">
+    <div class="sc-sticky">
+      <svg class="sc-lines" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden="true"><path d="M-20 360L180 170L380 360L580 120L780 360L980 170L1220 380"/></svg>
+      <div class="sc-head wrap">
+        <p class="label">Referenzen</p>
+        <h2>Echte Dächer. <span>Echte Baustellen.</span></h2>
+      </div>
+      <div class="sc-stage" id="stage"></div>
+      <div class="sc-info wrap" aria-live="polite">
+        <div class="sc-count"><b id="scNum">01</b><span>/ 07</span></div>
+        <div class="sc-cap"><span id="scTag"></span><b id="scTitle"></b><p id="scText"></p></div>
+        <div class="sc-bar"><i id="scBar"></i></div>
+      </div>
+      <p class="sc-hint" id="scHint">Scrollen</p>
     </div>
   </div>
-  <div class="marquee" id="marquee" data-reveal><div class="track" id="track"></div></div>
-  <p class="swipe-hint" aria-hidden="true">← Wischen →</p>
-  <div class="wrap sc-ba"><div class="refs" id="refs"></div></div>
+  <div class="wrap sc-ba"><p class="label">Vorher / Nachher</p><div class="refs" id="refs"></div></div>
 </section>
 
 <!-- 3) ÜBER UNS -->
