@@ -1,68 +1,68 @@
 # KI-Bild-Prompts – KB Bedachungen
 
 Sechs Prompts für fotorealistische Vorschau-Bilder (z. B. ChatGPT/DALL·E, Midjourney, Gemini, Firefly).
-Fertige Bilder als `assets/img/hero.jpg`, `ref-1.jpg` … ablegen, dann ersetzen sie die SVG-Illustrationen.
+Schwerpunkt: Flachdach und Foliendach für Häuser, Terrassen und Garagen.
 
-**Negativ-Prompt für alle:** no text, no letters, no logos, no watermark, no distorted hands, no extra fingers, no cartoon, no oversaturation
+**Negativ-Prompt für alle:** no text, no letters, no logos, no watermark, no pitched roof, no roof tiles, no distorted hands, no extra fingers, no cartoon
 
 ---
 
-### 1) Hero – Dachdecker bei der Arbeit
-- **Motiv:** Ein Dachdecker in anthrazitfarbener Arbeitskleidung mit Kupfer-Akzenten verlegt rote Tondachziegel auf einem steilen Satteldach eines süddeutschen Einfamilienhauses, Werkzeug und Ziegelstapel neben ihm
+### 1) Hero – Dachdecker verlegt Dachfolie
+- **Motiv:** Dachdecker in anthrazitfarbener Arbeitskleidung rollt eine graue EPDM-Dachfolie auf einem modernen Flachdach aus, Attika aus Aluminium im Vordergrund
 - **Stil:** fotorealistisch, cinematic, Werbefotografie, geringe Schärfentiefe
-- **Licht:** Golden Hour, warmes Gegenlicht, leichte Lens Flares
-- **Perspektive:** leicht von unten, Halbtotale, Person im rechten Bilddrittel
+- **Licht:** Golden Hour, warmes Gegenlicht
+- **Perspektive:** leicht erhöht, Halbtotale, Person im rechten Bilddrittel
 - **Seitenverhältnis:** 16:9
 ```
-Photorealistic cinematic shot of a German roofer in charcoal workwear with copper accents laying red clay roof tiles on a steep gable roof of a Bavarian family house, stacked tiles and tools nearby, golden hour backlight, warm lens flare, shallow depth of field, low angle medium shot, subject on right third, 16:9 --no text, logo, watermark
+Photorealistic cinematic shot of a roofer in charcoal workwear rolling out a grey EPDM roofing membrane on a modern flat roof, aluminium parapet edge in the foreground, golden hour backlight, shallow depth of field, slightly elevated medium shot, subject on right third, 16:9 --no text, logo, watermark, pitched roof, roof tiles
 ```
 
-### 2) Neueindeckung Satteldach
-- **Motiv:** Frisch eingedecktes Satteldach mit neuen roten Ziegeln, neue Dachrinne aus Kupfer
-- **Stil:** fotorealistisch, Architekturfotografie
-- **Licht:** klarer Vormittag, blauer Himmel, weiche Schatten
-- **Perspektive:** Totale schräg von vorne, Augenhöhe
+### 2) Fertiges Foliendach auf einem Wohnhaus
+- **Motiv:** Modernes Einfamilienhaus mit neu abgedichtetem Flachdach aus grauer Kunststofffolie, saubere Nähte, Lichtkuppel, Dachablauf
+- **Stil:** fotorealistisch, Architekturfotografie, clean
+- **Licht:** klarer Vormittag, blauer Himmel
+- **Perspektive:** Drohne, 45° von schräg oben
 - **Seitenverhältnis:** 16:10
 ```
-Photorealistic architectural photo of a newly tiled gable roof with fresh red clay tiles and a new copper rain gutter on a white family house in a small Swabian town, clear morning light, blue sky, soft shadows, three-quarter front view at eye level, 16:10 --no text, logo, watermark
+Photorealistic drone photo of a modern family house with a newly waterproofed flat roof in grey PVC membrane, clean welded seams, one skylight dome and a roof drain, clear morning light, blue sky, 45 degree aerial view, 16:10 --no text, logo, watermark, pitched roof, roof tiles
 ```
 
-### 3) Flachdach mit Lichtkuppeln
-- **Motiv:** Modernes Flachdach mit Bitumenabdichtung, Kiesschicht und zwei Lichtkuppeln, Dachrand mit Attika
-- **Stil:** fotorealistisch, clean, technisch
-- **Licht:** Abendlicht, blaue Stunde, warmes Licht aus den Fenstern
-- **Perspektive:** Vogelperspektive / Drohne, 45°
-- **Seitenverhältnis:** 16:10
+### 3) Garagendach mit Folie
+- **Motiv:** Fertig-Garage neben einem Wohnhaus, Flachdach mit neuer EPDM-Folie, Alu-Randabschluss und Regenrinne
+- **Stil:** fotorealistisch, dokumentarisch
+- **Licht:** weiches Nachmittagslicht
+- **Perspektive:** schräg von vorne, leicht erhöht
+- **Seitenverhältnis:** 4:3
 ```
-Photorealistic drone shot of a modern flat roof with bitumen waterproofing, gravel layer and two acrylic skylight domes, clean parapet edges, blue hour, warm light from windows, 45 degree aerial view, technical and clean, 16:10 --no text, logo, watermark
+Photorealistic photo of a single garage next to a German house with a flat roof freshly covered in black EPDM membrane, aluminium edge trim and rain gutter, soft afternoon light, three-quarter front view slightly elevated, 4:3 --no text, logo, watermark, pitched roof, roof tiles
 ```
 
-### 4) Detail – Hände beim Verlegen
-- **Motiv:** Nahaufnahme von Handwerkerhänden mit Arbeitshandschuhen, die einen Dachziegel auf die Lattung setzen, Unterdeckbahn sichtbar
-- **Stil:** fotorealistisch, Makro, cinematic
-- **Licht:** seitliches Sonnenlicht, Staubpartikel in der Luft
+### 4) Dachterrasse mit Abdichtung
+- **Motiv:** Dachterrasse während der Abdichtung: eine Hälfte mit freiliegender heller Abdichtungsfolie, die andere Hälfte mit fertigem Holzdeck und Glasgeländer
+- **Stil:** fotorealistisch, cinematic
+- **Licht:** Golden Hour
+- **Perspektive:** Weitwinkel aus der Ecke der Terrasse
+- **Seitenverhältnis:** 16:9
+```
+Photorealistic cinematic photo of a rooftop terrace during waterproofing, half of the surface shows exposed light grey waterproofing membrane, the other half finished with wooden decking and a glass railing, golden hour, wide angle from the terrace corner, 16:9 --no text, logo, watermark, roof tiles
+```
+
+### 5) Detail – Heißluftschweißen der Naht
+- **Motiv:** Nahaufnahme einer Hand mit Heißluftfön und Andruckrolle beim Verschweißen einer Kunststoff-Dachbahn
+- **Stil:** fotorealistisch, Makro
+- **Licht:** seitliches Sonnenlicht, leichter Dampf
 - **Perspektive:** Close-up, Detailaufnahme
 - **Seitenverhältnis:** 4:3
 ```
-Photorealistic macro close-up of a roofer's gloved hands placing a clay roof tile onto wooden battens, underlayment membrane visible, side sunlight with floating dust particles, cinematic texture, detail shot, 4:3 --no text, logo, watermark, extra fingers
+Photorealistic macro close-up of a gloved hand using a hot-air welder and silicone pressure roller to weld the seam of a PVC roofing membrane, side sunlight, slight heat haze, detail shot, 4:3 --no text, logo, watermark, extra fingers
 ```
 
-### 5) Dachsanierung mit Gerüst (Vorher/Nachher-Gefühl)
-- **Motiv:** Altes Haus mit Gerüst, eine Dachhälfte zeigt freigelegte Holzlattung, die andere Hälfte ist bereits neu eingedeckt
+### 6) Flachdachsanierung vorher/nachher
+- **Motiv:** Altes Flachdach mit rissiger Bitumenbahn, Pfützen und Moos neben einem bereits sanierten Bereich mit neuer grauer Folie
 - **Stil:** fotorealistisch, dokumentarisch
-- **Licht:** späte Nachmittagssonne, leicht bewölkt
-- **Perspektive:** Totale von der Straße, leicht erhöht
-- **Seitenverhältnis:** 16:9
+- **Licht:** bedeckter Himmel, weiches Licht
+- **Perspektive:** Drohne, senkrecht von oben
+- **Seitenverhältnis:** 1:1
 ```
-Photorealistic documentary photo of a roof renovation on an older German house with scaffolding, left half of the roof shows exposed wooden battens, right half already covered with new anthracite tiles, late afternoon sun, light clouds, wide shot from the street slightly elevated, 16:9 --no text, logo, watermark
-```
-
-### 6) Dachfenster-Einbau / Innenraum
-- **Motiv:** Helles ausgebautes Dachgeschoss mit zwei neuen Wohndachfenstern, Holzbalken sichtbar
-- **Stil:** fotorealistisch, Interior-Fotografie
-- **Licht:** Studio-ähnlich weich, Tageslicht fällt durch die Dachfenster
-- **Perspektive:** Weitwinkel aus der Raumecke
-- **Seitenverhältnis:** 3:2
-```
-Photorealistic interior photo of a bright converted attic room with two new roof windows, exposed wooden rafters, natural daylight streaming through the windows, soft even light, wide angle from the room corner, warm minimal interior, 3:2 --no text, logo, watermark
+Photorealistic top-down drone photo of a flat roof renovation, left half an old cracked bitumen roof with puddles and moss, right half freshly covered with new grey roofing membrane, overcast soft light, 1:1 --no text, logo, watermark, pitched roof, roof tiles
 ```
