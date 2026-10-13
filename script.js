@@ -175,9 +175,27 @@ const REFS=[
   ["gewerbedach","Gewerbedach mit Lichtkuppeln","Gewerbe","Große Dachfläche mit mehreren Lichtkuppeln und Abläufen.","Gewerbliches Flachdach mit Lichtkuppeln"],
   ["anschluss-fassade","Anschluss an die Fassade","Flachdach","Beschieferte Bahn, sauber an die Metallwand angeschlossen.","Flachdach mit roter Schieferbahn an einer Metallfassade"]
 ];
-const cards=REFS.map(([f,t,m,p,alt],i)=>`<figure class="ref" tabindex="0" data-reveal style="--d:${(i%3)*.1}s"><img class="photo" src="assets/img/${f}.jpg" alt="${alt}" loading="lazy" decoding="async"><figcaption><span>${m}</span><b>${t}</b><p>${p}</p></figcaption></figure>`);
-cards.splice(3,0,`<figure class="ref ba" data-reveal style="--d:.1s"><div class="pane before">${scene("old")}</div><div class="pane after">${scene("new")}</div><span class="tag-ill">Illustration</span><span class="lbl l">Vorher</span><span class="lbl r">Nachher</span><div class="handle"></div><input type="range" min="0" max="100" value="50" aria-label="Vorher/Nachher vergleichen"><figcaption><span>Vorher / Nachher</span><b>Flachdachsanierung</b></figcaption></figure>`);
+const roofSvg='<svg class="pc-roof" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><path class="d" d="M1 23L50 1"/><path class="r" d="M50 1L99 23"/></svg>';
+const pcard=(r,i,dup)=>`<button type="button" class="pc" data-i="${i}" style="--i:${i}"${dup?' aria-hidden="true" tabindex="-1"':''}><span class="pc-img"><img src="assets/img/${r[0]}.jpg" alt="${dup?"":r[4]}" loading="lazy" decoding="async"></span>${roofSvg}<span class="pc-cap"><span>${r[2]}</span><b>${r[1]}</b></span></button>`;
+$("#track").innerHTML=REFS.map((r,i)=>pcard(r,i)).join("")+REFS.map((r,i)=>pcard(r,i,1)).join("");
+const cards=[];
+cards.push(`<figure class="ref ba" data-reveal style="--d:.1s"><div class="pane before">${scene("old")}</div><div class="pane after">${scene("new")}</div><span class="tag-ill">Illustration</span><span class="lbl l">Vorher</span><span class="lbl r">Nachher</span><div class="handle"></div><input type="range" min="0" max="100" value="50" aria-label="Vorher/Nachher vergleichen"><figcaption><span>Vorher / Nachher</span><b>Flachdachsanierung</b></figcaption></figure>`);
 $("#refs").innerHTML=cards.join("");
+
+/* Lightbox */
+const lb=$("#lb");let lbI=0,lbLast=null;
+function lbShow(i){lbI=(i+REFS.length)%REFS.length;const r=REFS[lbI];$("#lbImg").src=`assets/img/${r[0]}.jpg`;$("#lbImg").alt=r[4];$("#lbTag").textContent=r[2];$("#lbTitle").textContent=r[1];$("#lbText").textContent=r[3]}
+function lbOpen(i){lbLast=document.activeElement;lbShow(i);lb.classList.add("open");document.body.classList.add("locked");$(".lb-x",lb).focus()}
+function lbClose(){if(!lb.classList.contains("open"))return;lb.classList.remove("open");document.body.classList.remove("locked");lbLast&&lbLast.focus()}
+$("#track").addEventListener("click",e=>{const c=e.target.closest(".pc");if(c)lbOpen(+c.dataset.i)});
+$(".lb-x",lb).onclick=lbClose;$(".prev",lb).onclick=()=>lbShow(lbI-1);$(".next",lb).onclick=()=>lbShow(lbI+1);
+lb.addEventListener("click",e=>{if(e.target===lb)lbClose()});
+addEventListener("keydown",e=>{if(!lb.classList.contains("open"))return;if(e.key==="Escape")lbClose();if(e.key==="ArrowLeft")lbShow(lbI-1);if(e.key==="ArrowRight")lbShow(lbI+1)});
+
+/* Fotoband: Schwung beim Scrollen (nur Desktop) */
+(()=>{const tr=$("#track");let lastY=scrollY,sk=0;
+  (function loop(){if(!reduce&&!calm()){const v=scrollY-lastY;lastY=scrollY;sk+=(Math.max(-8,Math.min(8,v*.25))-sk)*.12;tr.style.setProperty("--sk",sk.toFixed(2)+"deg")}else tr.style.setProperty("--sk","0deg");requestAnimationFrame(loop)})();
+})();
 const ba=$(".ba"),baIn=$(".ba input");
 baIn.addEventListener("input",()=>ba.style.setProperty("--pos",baIn.value+"%"));
 
