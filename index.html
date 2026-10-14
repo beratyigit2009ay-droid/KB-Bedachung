@@ -96,16 +96,17 @@
 <section class="showcase" id="referenzen">
   <div class="sc-3d" id="sc3d">
     <div class="sc-sticky">
-      <svg class="sc-lines" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden="true"><path d="M-20 360L180 170L380 360L580 120L780 360L980 170L1220 380"/></svg>
+      <svg class="sc-lines" id="scLines" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden="true"><path d="M-20 360L180 170L380 360L580 120L780 360L980 170L1220 380"/><path d="M-20 400L240 230L460 400L700 190L940 400L1220 240"/></svg>
+      <div class="sc-big" id="scBig" aria-hidden="true">01</div>
       <div class="sc-head wrap">
         <p class="label">Referenzen</p>
         <h2>Echte Dächer. <span>Echte Baustellen.</span></h2>
       </div>
-      <div class="sc-stage" id="stage"></div>
+      <div class="sc-view" id="scView"><div class="sc-ring" id="stage"></div><div class="sc-floor" aria-hidden="true"></div></div>
       <div class="sc-info wrap" aria-live="polite">
-        <div class="sc-count"><b id="scNum">01</b><span>/ 07</span></div>
+        <div class="sc-count"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29"/><circle class="pr" id="scRing" cx="32" cy="32" r="29" pathLength="100"/></svg><b id="scNum">01</b><span>/ 07</span></div>
         <div class="sc-cap"><span id="scTag"></span><b id="scTitle"></b><p id="scText"></p></div>
-        <div class="sc-bar"><i id="scBar"></i></div>
+        <div class="sc-dots" id="scDots" role="tablist" aria-label="Foto wählen"></div>
       </div>
       <p class="sc-hint" id="scHint">Scrollen</p>
     </div>

@@ -190,28 +190,46 @@ $(".lb-x",lb).onclick=lbClose;$(".prev",lb).onclick=()=>lbShow(lbI-1);$(".next",
 lb.addEventListener("click",e=>{if(e.target===lb)lbClose()});
 addEventListener("keydown",e=>{if(!lb.classList.contains("open"))return;if(e.key==="Escape")lbClose();if(e.key==="ArrowLeft")lbShow(lbI-1);if(e.key==="ArrowRight")lbShow(lbI+1)});
 
-/* Fotos: 3D-Flug beim Scrollen */
-(()=>{const box=$("#sc3d"),pcs=$$("#stage .pc"),N=pcs.length;let cur=-1,tick=false;
+/* Fotos: 3D-Ring, dreht sich beim Scrollen */
+(()=>{const box=$("#sc3d"),ring=$("#stage"),view=$("#scView"),pcs=$$("#stage .pc"),N=pcs.length,step=360/N;
+  let cur=-1,R=0,mx=0,my=0,tx=0,ty=0,live=false,raf=0;
   if(reduce){box.classList.add("flat");return}
-  function upd(){tick=false;const m=calm(),r=box.getBoundingClientRect(),run=box.offsetHeight-innerHeight;
-    const t=Math.min(1,Math.max(0,-r.top/run)),raw=t*(N-1),fi=Math.floor(raw),fr=raw-fi,
-      s=fr<.22?0:fr>.78?1:(u=>u*u*(3-2*u))((fr-.22)/.56),p=Math.min(N-1,fi+s);
-    const gap=m?520:1050,sx=m?0:380,rot=m?0:16;
-    pcs.forEach((c,i)=>{const d=i-p,side=i%2?1:-1;
-      const z=d>0?-d*gap:-d*gap*.7,x=d>0?side*d*sx:-side*d*(m?0:520),y=d>0?d*(m?-22:-28):-d*(m?60:40),ry=d>0?-side*Math.min(d,2)*rot:side*d*rot*1.6;
-      let o=d>2.4?Math.max(0,3.2-d):d<0?Math.max(0,1+d*2.6):1;
-      c.style.transform=`translate3d(${x}px,${y}px,${z}px) rotateY(${ry}deg)`;
-      c.style.opacity=o.toFixed(3);c.style.zIndex=100-Math.round(Math.abs(d)*10);
-      c.style.setProperty("--l",Math.max(0,1-Math.abs(d)).toFixed(3));
-      c.style.pointerEvents=Math.abs(d)<.5?"auto":"none";c.tabIndex=Math.abs(d)<.5?0:-1});
+  $("#scDots").innerHTML=REFS.map((r,i)=>`<button type="button" role="tab" aria-label="Foto ${i+1}: ${r[1]}"></button>`).join("");
+  const dots=$$("#scDots button");
+  const run=()=>box.offsetHeight-innerHeight;
+  dots.forEach((d,i)=>d.onclick=()=>scrollTo({top:box.getBoundingClientRect().top+scrollY+run()*(i/(N-1))+2,behavior:"smooth"}));
+  function layout(){const w=pcs[0].offsetWidth;R=Math.round(w*N*1.18/(2*Math.PI));
+    pcs.forEach((c,i)=>c.style.setProperty("--a",i*step+"deg"));ring.style.setProperty("--R",R+"px")}
+  function frame(){raf=0;const m=calm(),r=box.getBoundingClientRect(),h=innerHeight,rn=run();
+    // Einflug: bevor der Bereich oben ankommt, klappt der Ring auf
+    const e=Math.min(1,Math.max(0,1-r.top/h)),ee=1-Math.pow(1-e,3);
+    const t=Math.min(1,Math.max(0,-r.top/rn)),raw=t*(N-1),fi=Math.floor(raw),fr=raw-fi,
+      s=fr<.2?0:fr>.8?1:(u=>u*u*(3-2*u))((fr-.2)/.6),p=Math.min(N-1,fi+s);
+    tx+=(mx-tx)*.08;ty+=(my-ty)*.08;
+    const tilt=m?7:(34-26*ee)+ty*-5,spin=(m?40:120)*(1-ee),back=(m?300:1100)*(1-ee),ang=-p*step-spin;
+    ring.style.transform=`translateZ(${-R-back}px) rotateX(${-tilt}deg) rotateY(${ang+(m?0:tx*8)}deg)`;
+    pcs.forEach((c,i)=>{let th=((i*step+ang)%360+540)%360-180;const co=Math.cos(th*Math.PI/180),f=Math.max(0,co);
+      c.style.setProperty("--b",(.22+.78*Math.pow(f,1.4)).toFixed(3));
+      c.style.setProperty("--bl",m?"0px":((1-f)*4).toFixed(2)+"px");
+      c.style.setProperty("--lift",(Math.pow(f,10)*(m?30:70)).toFixed(1)+"px");
+      const on=Math.abs(th)<step/2;c.classList.toggle("on",on);c.tabIndex=on?0:-1});
     const k=Math.min(N-1,Math.round(p));
-    if(k!==cur){cur=k;const q=REFS[k];$("#scNum").textContent=String(k+1).padStart(2,"0");$("#scTag").textContent=q[2];$("#scTitle").textContent=q[1];$("#scText").textContent=q[3];
-      const cap=$(".sc-cap");cap.classList.remove("swap");void cap.offsetWidth;cap.classList.add("swap")}
-    $("#scBar").style.transform=`scaleX(${(p/(N-1)).toFixed(3)})`;
-    $("#scHint").classList.toggle("gone",t>.04);
+    if(k!==cur){cur=k;const q=REFS[k],n=String(k+1).padStart(2,"0");$("#scNum").textContent=n;$("#scBig").textContent=n;
+      $("#scTag").textContent=q[2];$("#scTitle").textContent=q[1];$("#scText").textContent=q[3];
+      dots.forEach((d,i)=>d.setAttribute("aria-selected",i===k));
+      for(const el of [$(".sc-cap"),$("#scBig")]){el.classList.remove("swap");void el.offsetWidth;el.classList.add("swap")}}
+    $("#scRing").style.strokeDashoffset=(100-100*(p/(N-1))).toFixed(2);
+    $("#scLines").style.transform=`translateX(${(-p*3).toFixed(2)}%)`;
+    $("#scHint").classList.toggle("gone",t>.03);
+    if(live&&!m&&(Math.abs(mx-tx)>.002||Math.abs(my-ty)>.002))raf=requestAnimationFrame(frame);
   }
-  const req=()=>{if(!tick){tick=true;requestAnimationFrame(upd)}};
-  addEventListener("scroll",req,{passive:true});addEventListener("resize",req);upd();
+  const req=()=>{if(!raf)raf=requestAnimationFrame(frame)};
+  new IntersectionObserver(es=>{live=es[0].isIntersecting;if(live)req()}).observe(box);
+  addEventListener("scroll",req,{passive:true});
+  addEventListener("resize",()=>{layout();req()});
+  view.addEventListener("pointermove",e=>{if(e.pointerType!=="mouse")return;mx=e.clientX/innerWidth*2-1;my=e.clientY/innerHeight*2-1;req()});
+  view.addEventListener("pointerleave",()=>{mx=my=0;req()});
+  layout();frame();
 })();
 const ba=$(".ba"),baIn=$(".ba input");
 baIn.addEventListener("input",()=>ba.style.setProperty("--pos",baIn.value+"%"));
