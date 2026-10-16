@@ -92,26 +92,33 @@
   </div>
 </section>
 
-<!-- 2b) REFERENZEN: Fotos in 3D -->
+<!-- 2b) REFERENZEN: Dachbahn rollt aus -->
 <section class="showcase" id="referenzen">
-  <div class="sc-3d" id="sc3d">
-    <div class="sc-sticky">
-      <svg class="sc-lines" id="scLines" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden="true"><path d="M-20 360L180 170L380 360L580 120L780 360L980 170L1220 380"/><path d="M-20 400L240 230L460 400L700 190L940 400L1220 240"/></svg>
-      <div class="sc-big" id="scBig" aria-hidden="true">01</div>
-      <div class="sc-head wrap">
-        <p class="label">Referenzen</p>
-        <h2>Echte Dächer. <span>Echte Baustellen.</span></h2>
+  <div class="rl" id="rollout">
+    <div class="rl-sticky">
+      <div class="rl-head wrap">
+        <div><p class="label">Referenzen</p><h2>Bahn für Bahn. <span>Dach für Dach.</span></h2></div>
+        <div class="rl-count" aria-live="polite"><b id="rlNum">01</b><span>/ 07</span><small id="rlTitle"></small></div>
       </div>
-      <div class="sc-view" id="scView"><div class="sc-ring" id="stage"></div><div class="sc-floor" aria-hidden="true"></div></div>
-      <div class="sc-info wrap" aria-live="polite">
-        <div class="sc-count"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29"/><circle class="pr" id="scRing" cx="32" cy="32" r="29" pathLength="100"/></svg><b id="scNum">01</b><span>/ 07</span></div>
-        <div class="sc-cap"><span id="scTag"></span><b id="scTitle"></b><p id="scText"></p></div>
-        <div class="sc-dots" id="scDots" role="tablist" aria-label="Foto wählen"></div>
+      <div class="rl-roof" id="rlRoof">
+        <div class="rl-sheet" id="rlSheet"><div class="rl-track" id="stage"></div></div>
+        <div class="rl-heat" id="rlHeat" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="rl-roll" id="rlRoll" aria-hidden="true">
+          <div class="rl-body"></div>
+          <svg class="rl-cap top" viewBox="-50 -50 100 100"><circle r="48" class="c"/><path class="sp" d=""/></svg>
+          <svg class="rl-cap bot" viewBox="-50 -50 100 100"><circle r="48" class="c"/><path class="sp" d=""/></svg>
+        </div>
+        <svg class="rl-torch" id="rlTorch" viewBox="0 0 220 120" aria-hidden="true">
+          <defs><radialGradient id="rlFl" cx=".15" cy=".5" r=".85"><stop offset="0" stop-color="#fff6c8"/><stop offset=".25" stop-color="#ffc24a"/><stop offset=".6" stop-color="#f06a1d" stop-opacity=".85"/><stop offset="1" stop-color="#e3342b" stop-opacity="0"/></radialGradient></defs>
+          <path class="fl" d="M8 60C30 40 70 44 104 56C70 70 30 80 8 60Z" fill="url(#rlFl)"/>
+          <path class="fl f2" d="M6 60C24 50 52 52 78 58C54 66 26 70 6 60Z" fill="url(#rlFl)"/>
+          <rect x="100" y="48" width="44" height="24" rx="5" fill="#3a3d42"/><rect x="104" y="51" width="36" height="5" fill="#5b6067"/>
+          <path d="M144 60H212" stroke="#2a2c30" stroke-width="10" stroke-linecap="round"/><path d="M180 60v26" stroke="#c4733a" stroke-width="8" stroke-linecap="round"/>
+        </svg>
       </div>
-      <p class="sc-hint" id="scHint">Scrollen</p>
+      <div class="rl-foot wrap"><div class="rl-line"><i id="rlBar"></i></div><p class="rl-hint" id="rlHint">Scrollen, die Bahn rollt aus</p></div>
     </div>
   </div>
-  <div class="wrap sc-ba"><p class="label">Vorher / Nachher</p><div class="refs" id="refs"></div></div>
 </section>
 
 <!-- 3) ÜBER UNS -->

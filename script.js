@@ -45,62 +45,6 @@ if(location.hash==="#impressum")openSheet("impressum");
 $(".fab .up").addEventListener("click",()=>scrollTo({top:0,behavior:reduce?"auto":"smooth"}));
 $("#yr").textContent=new Date().getFullYear();
 
-/* =========================================================
-   SVG-Illustrationen (Vorschau-Bilder)
-   ========================================================= */
-let uid=0;
-const SKY={day:["#7fb6e6","#cfe6f7","#f3d9a4"],dusk:["#2a3550","#c4566a","#f6b26b"],evening:["#1b2340","#4a3f6b","#e08a5b"],grey:["#8a98a8","#c9d2da","#e8ebee"],morning:["#9cc7e8","#f2d2c0","#fbe7c6"],storm:["#4d5662","#7d8692","#a9adb2"]};
-function patterns(id){
-  return `<pattern id="foil${id}" width="44" height="10" patternUnits="userSpaceOnUse"><rect width="44" height="10" fill="#4b5157"/><rect width="2" height="10" fill="#5d646b"/><rect x="2" width="1" height="10" fill="#3a3f44"/></pattern>
-  <pattern id="foilL${id}" width="44" height="10" patternUnits="userSpaceOnUse"><rect width="44" height="10" fill="#c9ced2"/><rect width="2" height="10" fill="#e3e6e9"/><rect x="2" width="1" height="10" fill="#aab1b7"/></pattern>
-  <pattern id="old${id}" width="30" height="16" patternUnits="userSpaceOnUse"><rect width="30" height="16" fill="#3b3430"/><path d="M2 5l6 2 5-3M16 12l5-2 6 3" stroke="#22201e" stroke-width="1.2" fill="none"/><circle cx="24" cy="4" r="2.2" fill="#5e6b3a" opacity=".7"/><circle cx="8" cy="12" r="1.6" fill="#5e6b3a" opacity=".6"/></pattern>
-  <pattern id="gravel${id}" width="12" height="8" patternUnits="userSpaceOnUse"><rect width="12" height="8" fill="#9a9690"/><circle cx="3" cy="3" r="1.4" fill="#b8b3ab"/><circle cx="9" cy="6" r="1.2" fill="#7f7b75"/></pattern>
-  <pattern id="deck${id}" width="16" height="8" patternUnits="userSpaceOnUse"><rect width="16" height="8" fill="#a8774a"/><rect y="6" width="16" height="2" fill="#7d5532"/></pattern>`;
-}
-function skyBlock(id,sky){const [a,b,c]=SKY[sky];return `<linearGradient id="sky${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset=".6" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></linearGradient><radialGradient id="sun${id}"><stop offset="0" stop-color="#fff6d8"/><stop offset=".4" stop-color="#ffd27a" stop-opacity=".9"/><stop offset="1" stop-color="#ffb35a" stop-opacity="0"/></radialGradient>`}
-function clouds(w,h,n,op){let s="";for(let i=0;i<n;i++){const x=(i*277+60)%w,y=40+(i*53)%(h*.3),r=30+(i*17)%40;s+=`<g opacity="${op}" fill="#fff"><ellipse cx="${x}" cy="${y}" rx="${r*1.8}" ry="${r*.45}"/><ellipse cx="${x+r*.5}" cy="${y-r*.25}" rx="${r}" ry="${r*.45}"/></g>`}return s}
-/* Silhouetten im Hintergrund: flache Baukörper */
-function farRow(w,base,color,seed){let s="",x=-20,i=seed;while(x<w+40){const bw=60+(i*37)%80,bh=40+(i*23)%70;s+=`<rect x="${x}" y="${base-bh}" width="${bw}" height="${bh}" fill="${color}"/>`;if(i%2===0)s+=`<rect x="${x+bw*.2}" y="${base-bh-14}" width="${bw*.5}" height="14" fill="${color}"/>`;x+=bw+6;i++}return s}
-function trees(xs,base,c){return xs.map(([x,r])=>`<rect x="${x-3}" y="${base-r*1.3}" width="6" height="${r*1.3}" fill="#4a3a2c"/><circle cx="${x}" cy="${base-r*1.5}" r="${r}" fill="${c}"/><circle cx="${x-r*.5}" cy="${base-r*1.2}" r="${r*.7}" fill="${c}"/>`).join("")}
-/* Baukörper mit Flachdach in 2.5D: Front, rechte Seite, sichtbare Dachfläche */
-function box(id,o){
-  const {x,y,w,h,d=70,dy=28,roof="foil",wall="#f2f0ec",side="#d6d2cb",win=true,door=false,garage=false,domes=0,roofer=false,puddles=false,railing=false,deck=false,outlet=true}=o;
-  const top=`${x},${y} ${x+w},${y} ${x+w+d},${y-dy} ${x+d},${y-dy}`;
-  let s=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${wall}"/><path d="M${x+w} ${y}L${x+w+d} ${y-dy}V${y+h-dy}L${x+w} ${y+h}Z" fill="${side}"/>`;
-  s+=`<polygon points="${top}" fill="url(#${roof}${id})"/>`;
-  if(roof==="foil"||roof==="foilL"){for(let t=0;t<=1.0001;t+=.125){const px=x+t*w;s+=`<path d="M${px} ${y}L${px+d} ${y-dy}" stroke="${roof==="foil"?"#5f666d":"#e8ebee"}" stroke-width="1.4"/>`}}
-  if(deck){const f=.45;s+=`<polygon points="${x+w*f},${y} ${x+w},${y} ${x+w+d},${y-dy} ${x+w*f+d},${y-dy}" fill="url(#deck${id})"/>`}
-  if(puddles)[[.25,.5],[.6,.35],[.4,.8]].forEach(([fx,fy])=>{s+=`<ellipse cx="${x+fx*w+fy*d}" cy="${y-fy*dy}" rx="${22}" ry="5" fill="#6f8fa8" opacity=".55"/>`});
-  // Attika (Dachrand)
-  s+=`<path d="M${x-3} ${y}H${x+w}L${x+w+d+3} ${y-dy-1}" fill="none" stroke="${roof==="old"?"#5a4f48":"#2f3337"}" stroke-width="7"/><path d="M${x-3} ${y+4}H${x+w}" stroke="#9aa3ab" stroke-width="2"/>`;
-  if(outlet)s+=`<path d="M${x+w+d*.6} ${y-dy*.6+8}V${y+h-dy*.6}" stroke="#8d969e" stroke-width="5"/>`;
-  for(let i=0;i<domes;i++){const cx=x+w*(.28+i*.34)+d*.5,cy=y-dy*.5;s+=`<ellipse cx="${cx}" cy="${cy}" rx="22" ry="7" fill="#c9d6df"/><path d="M${cx-18} ${cy}A18 14 0 0 1 ${cx+18} ${cy}Z" fill="#dfeaf2" stroke="#a9b6c0" stroke-width="2"/>`}
-  if(railing){s+=`<path d="M${x+2} ${y-14}H${x+w}L${x+w+d} ${y-dy-14}" fill="none" stroke="#2f3337" stroke-width="3"/>`;for(let t=0;t<=1.0001;t+=.1)s+=`<path d="M${x+2+t*(w-2)} ${y}V${y-14}" stroke="#2f3337" stroke-width="2"/>`}
-  if(garage){s+=`<rect x="${x+w*.12}" y="${y+h*.28}" width="${w*.76}" height="${h*.72}" fill="#d9dde0"/>`;for(let i=1;i<6;i++)s+=`<path d="M${x+w*.12} ${y+h*.28+i*h*.12}H${x+w*.88}" stroke="#b4bbc0" stroke-width="2"/>`}
-  else if(win){s+=`<rect x="${x+w*.08}" y="${y+24}" width="${w*.46}" height="${h*.42}" fill="#3d5a73"/><path d="M${x+w*.31} ${y+24}V${y+24+h*.42}" stroke="#2b2829" stroke-width="3"/><path d="M${x+w*.08} ${y+24}l${w*.2} 0l-${w*.2} ${h*.3}z" fill="#fff" opacity=".12"/>`}
-  if(door)s+=`<rect x="${x+w*.66}" y="${y+28}" width="${w*.2}" height="${h-28}" fill="#4a3528"/>`;
-  s+=`<rect x="${x}" y="${y+h-8}" width="${w}" height="8" fill="#393536"/>`;
-  if(roofer){const px=x+w*.45+d*.4,py=y-dy*.4;s+=`<g><rect x="${px+10}" y="${py-6}" width="38" height="9" rx="4.5" fill="#2e3236"/><rect x="${px-6}" y="${py-30}" width="12" height="22" rx="4" fill="#2b2829"/><rect x="${px-5}" y="${py-30}" width="10" height="9" fill="#d98b4d"/><path d="M${px-4} ${py-8}L${px-8} ${py+4}M${px+4} ${py-8}L${px+9} ${py+3}" stroke="#2b2829" stroke-width="4" stroke-linecap="round"/><path d="M${px+5} ${py-22}L${px+14} ${py-8}" stroke="#2b2829" stroke-width="3.5" stroke-linecap="round"/><circle cx="${px}" cy="${py-36}" r="6" fill="#e9b892"/><path d="M${px-7} ${py-37}A7 7 0 0 1 ${px+7} ${py-37}Z" fill="#f3c623"/></g>`}
-  return s;
-}
-function bench(x,y){return `<rect x="${x}" y="${y}" width="46" height="5" fill="#7d5532"/><path d="M${x+4} ${y+5}v12M${x+42} ${y+5}v12" stroke="#2f3337" stroke-width="3"/><circle cx="${x+70}" cy="${y-6}" r="14" fill="#3f6b3a"/><rect x="${x+62}" y="${y+4}" width="16" height="14" fill="#8d969e"/>`}
-function scene(kind){
-  const id=++uid,W=800,H=500;
-  const cfg={flat:{sky:"evening",g:"#4f6b46"},garage:{sky:"day",g:"#7ea35c"},terrace:{sky:"morning",g:"#86a965"},domes:{sky:"grey",g:"#6f8a5a"},old:{sky:"storm",g:"#5f6d4c"},new:{sky:"day",g:"#7ea35c"}}[kind];
-  const warm=kind==="flat";
-  let s=`<svg class="scene" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>${skyBlock(id,cfg.sky)}${patterns(id)}</defs><rect width="${W}" height="${H}" fill="url(#sky${id})"/>`;
-  if(kind!=="old")s+=`<circle cx="${warm?620:150}" cy="${warm?330:110}" r="110" fill="url(#sun${id})"/>`;
-  s+=clouds(W,H,4,kind==="old"?.9:.5)+farRow(W,400,"rgba(40,45,60,.25)",3)+`<path d="M0 410Q200 380 400 405T800 395V500H0Z" fill="${cfg.g}"/>`+trees([[70,26],[740,30]],420,"#3f6b3a");
-  if(kind==="flat")s+=box(id,{x:200,y:240,w:340,h:190,roof:"foil",door:true,roofer:true});
-  else if(kind==="garage")s+=box(id,{x:110,y:230,w:260,h:200,roof:"gravel",door:true})+box(id,{x:420,y:300,w:240,h:130,roof:"foil",garage:true,d:60,dy:24});
-  else if(kind==="terrace")s+=box(id,{x:150,y:180,w:300,h:250,roof:"gravel",door:true,outlet:false})+box(id,{x:450,y:320,w:230,h:110,roof:"foilL",deck:true,railing:true,win:false,d:60,dy:24})+bench(560,282);
-  else if(kind==="domes")s+=box(id,{x:200,y:240,w:340,h:190,roof:"foilL",domes:2,door:true});
-  else if(kind==="old")s+=box(id,{x:200,y:240,w:340,h:190,roof:"old",wall:"#d8d0c2",side:"#bfb3a0",puddles:true,door:true});
-  else if(kind==="new")s+=box(id,{x:200,y:240,w:340,h:190,roof:"foil",door:true});
-  return s+`<path d="M0 470Q400 440 800 470V500H0Z" fill="rgba(0,0,0,.12)"/></svg>`;
-}
-
-
 /* ---------- Hero: Schichtaufbau Flachdach (SVG) ---------- */
 function heroStack(){
   const W=600,H=612,x0=58,x1=470,dx=58,dy=40,yb=566;
@@ -165,7 +109,7 @@ const SVC=[
 ];
 $("#services").innerHTML=SVC.map(([t,p,ico],i)=>`<article class="svc" data-reveal style="--d:${(i%3)*.1}s"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ico}</svg></div><h3>${t}</h3><p>${p}</p></article>`).join("");
 
-/* ---------- Referenzen + Vorher/Nachher ---------- */
+/* ---------- Referenzen: Fotos ---------- */
 const REFS=[
   ["abdichtung-brenner","Abdichtung mit dem Brenner","Flachdach","Bitumenbahn wird verschweißt und am Rand sauber angeschlossen.","Dachdecker verlegt Bitumenbahn mit dem Brenner"],
   ["foliendach-hell","Großes Foliendach","Foliendach","Flachdach mit heller Kunststofffolie, mit Absturzsicherung.","Großes Flachdach mit heller Dachfolie"],
@@ -175,10 +119,8 @@ const REFS=[
   ["gewerbedach","Gewerbedach mit Lichtkuppeln","Gewerbe","Große Dachfläche mit mehreren Lichtkuppeln und Abläufen.","Gewerbliches Flachdach mit Lichtkuppeln"],
   ["anschluss-fassade","Anschluss an die Fassade","Flachdach","Beschieferte Bahn, sauber an die Metallwand angeschlossen.","Flachdach mit roter Schieferbahn an einer Metallfassade"]
 ];
-$("#stage").innerHTML=REFS.map((r,i)=>`<button type="button" class="pc" data-i="${i}" aria-label="${r[1]} groß ansehen"><img src="assets/img/${r[0]}.jpg" alt="${r[4]}" ${i>1?'loading="lazy"':''} decoding="async"><span class="pc-shine"></span></button>`).join("");
-const cards=[];
-cards.push(`<figure class="ref ba" data-reveal style="--d:.1s"><div class="pane before">${scene("old")}</div><div class="pane after">${scene("new")}</div><span class="tag-ill">Illustration</span><span class="lbl l">Vorher</span><span class="lbl r">Nachher</span><div class="handle"></div><input type="range" min="0" max="100" value="50" aria-label="Vorher/Nachher vergleichen"><figcaption><span>Vorher / Nachher</span><b>Flachdachsanierung</b></figcaption></figure>`);
-$("#refs").innerHTML=cards.join("");
+const PRINT="KB BEDACHUNGEN · FLACHDACH · ICHENHAUSEN · ";
+$("#stage").innerHTML=REFS.map((r,i)=>`<button type="button" class="pc" data-i="${i}" aria-label="${r[1]} groß ansehen"><span class="pc-ph"><img src="assets/img/${r[0]}.jpg" alt="${r[4]}" ${i>2?'loading="lazy"':''} decoding="async"></span><span class="pc-lbl"><em>${String(i+1).padStart(2,"0")}</em><span>${r[2]}</span><b>${r[1]}</b></span><span class="pc-print" aria-hidden="true">${PRINT.repeat(4)}</span></button>`).join("");
 
 /* Lightbox */
 const lb=$("#lb");let lbI=0,lbLast=null;
@@ -190,49 +132,40 @@ $(".lb-x",lb).onclick=lbClose;$(".prev",lb).onclick=()=>lbShow(lbI-1);$(".next",
 lb.addEventListener("click",e=>{if(e.target===lb)lbClose()});
 addEventListener("keydown",e=>{if(!lb.classList.contains("open"))return;if(e.key==="Escape")lbClose();if(e.key==="ArrowLeft")lbShow(lbI-1);if(e.key==="ArrowRight")lbShow(lbI+1)});
 
-/* Fotos: 3D-Ring, dreht sich beim Scrollen */
-(()=>{const box=$("#sc3d"),ring=$("#stage"),view=$("#scView"),pcs=$$("#stage .pc"),N=pcs.length,step=360/N;
-  let cur=-1,R=0,mx=0,my=0,tx=0,ty=0,live=false,raf=0;
+/* Fotos: Dachbahn rollt beim Scrollen aus */
+(()=>{const box=$("#rollout"),roof=$("#rlRoof"),track=$("#stage"),roll=$("#rlRoll"),heat=$("#rlHeat"),torch=$("#rlTorch"),pcs=$$("#stage .pc"),N=pcs.length,caps=$$("#rlRoll .sp");
+  let L=0,cur=-1,raf=0;
   if(reduce){box.classList.add("flat");return}
-  $("#scDots").innerHTML=REFS.map((r,i)=>`<button type="button" role="tab" aria-label="Foto ${i+1}: ${r[1]}"></button>`).join("");
-  const dots=$$("#scDots button");
-  const run=()=>box.offsetHeight-innerHeight;
-  dots.forEach((d,i)=>d.onclick=()=>scrollTo({top:box.getBoundingClientRect().top+scrollY+run()*(i/(N-1))+2,behavior:"smooth"}));
-  function layout(){const w=pcs[0].offsetWidth;R=Math.round(w*N*1.18/(2*Math.PI));
-    pcs.forEach((c,i)=>c.style.setProperty("--a",i*step+"deg"));ring.style.setProperty("--R",R+"px")}
-  function frame(){raf=0;const m=calm(),r=box.getBoundingClientRect(),h=innerHeight,rn=run();
-    // Einflug: bevor der Bereich oben ankommt, klappt der Ring auf
-    const e=Math.min(1,Math.max(0,1-r.top/h)),ee=1-Math.pow(1-e,3);
-    const t=Math.min(1,Math.max(0,-r.top/rn)),raw=t*(N-1),fi=Math.floor(raw),fr=raw-fi,
-      s=fr<.2?0:fr>.8?1:(u=>u*u*(3-2*u))((fr-.2)/.6),p=Math.min(N-1,fi+s);
-    tx+=(mx-tx)*.08;ty+=(my-ty)*.08;
-    const tilt=m?7:(34-26*ee)+ty*-5,spin=(m?40:120)*(1-ee),back=(m?300:1100)*(1-ee),ang=-p*step-spin;
-    ring.style.transform=`translateZ(${-R-back}px) rotateX(${-tilt}deg) rotateY(${ang+(m?0:tx*8)}deg)`;
-    pcs.forEach((c,i)=>{let th=((i*step+ang)%360+540)%360-180;const co=Math.cos(th*Math.PI/180),f=Math.max(0,co);
-      c.style.setProperty("--b",(.22+.78*Math.pow(f,1.4)).toFixed(3));
-      c.style.setProperty("--bl",m?"0px":((1-f)*4).toFixed(2)+"px");
-      c.style.setProperty("--lift",(Math.pow(f,10)*(m?30:70)).toFixed(1)+"px");
-      const on=Math.abs(th)<step/2;c.classList.toggle("on",on);c.tabIndex=on?0:-1});
-    const k=Math.min(N-1,Math.round(p));
-    if(k!==cur){cur=k;const q=REFS[k],n=String(k+1).padStart(2,"0");$("#scNum").textContent=n;$("#scBig").textContent=n;
-      $("#scTag").textContent=q[2];$("#scTitle").textContent=q[1];$("#scText").textContent=q[3];
-      dots.forEach((d,i)=>d.setAttribute("aria-selected",i===k));
-      for(const el of [$(".sc-cap"),$("#scBig")]){el.classList.remove("swap");void el.offsetWidth;el.classList.add("swap")}}
-    $("#scRing").style.strokeDashoffset=(100-100*(p/(N-1))).toFixed(2);
-    $("#scLines").style.transform=`translateX(${(-p*3).toFixed(2)}%)`;
-    $("#scHint").classList.toggle("gone",t>.03);
-    if(live&&!m&&(Math.abs(mx-tx)>.002||Math.abs(my-ty)>.002))raf=requestAnimationFrame(frame);
+  function spiral(turns){let d="";const n=Math.max(2,turns)*40;for(let k=0;k<=n;k++){const a=k/40*Math.PI*2,r=4+44*k/n;d+=(k?"L":"M")+(Math.cos(a)*r).toFixed(1)+" "+(Math.sin(a)*r).toFixed(1)}return d}
+  function layout(){const g=parseFloat(getComputedStyle(track).columnGap)||0;L=track.scrollWidth+g;
+    box.style.height=(innerHeight+L*(calm()?1:1.1))+"px"}
+  function frame(){raf=0;const m=calm(),r=box.getBoundingClientRect(),run=box.offsetHeight-innerHeight,
+      t=Math.min(1,Math.max(0,-r.top/run)),W=roof.clientWidth,rx=roof.dataset.rx=W*(m?.88:.8),u=12+t*(L-12);
+    track.style.transform=`translate3d(${(rx-u).toFixed(1)}px,0,0)`;
+    $("#rlSheet").style.clipPath=`inset(0 ${(W-rx).toFixed(1)}px 0 0)`;
+    // Rolle: wird beim Abrollen dünner und dreht sich
+    const H=roof.clientHeight,D=H*(m?.34:.4)*(1-.55*t)+H*.06;
+    roll.style.cssText=`left:${(rx-D*.15).toFixed(1)}px;width:${D.toFixed(1)}px;--rot:${(u/(Math.PI*D)*360).toFixed(1)}deg;--shift:${(-u%52).toFixed(1)}px`;
+    caps.forEach(c=>c.setAttribute("d",spiral(6*(1-t)+1.5)));
+    heat.style.left=(rx-34)+"px";torch.style.left=(rx+D*.75-torch.clientWidth*.42)+"px";
+    // Frisch verschweißt: Felder nah an der Rolle glühen
+    let k=0,best=1e9;
+    pcs.forEach((c,i)=>{const b=c.getBoundingClientRect(),rr=roof.getBoundingClientRect(),right=b.right-rr.left,mid=(b.left+b.right)/2-rr.left,
+        dist=rx-right,hot=Math.max(0,1-dist/(b.width*.9));
+      c.style.setProperty("--hot",hot.toFixed(3));
+      const dc=Math.abs(mid-(rx-b.width*.65));if(dc<best&&right<=rx+4){best=dc;k=i}});
+    if(k!==cur){cur=k;$("#rlNum").textContent=String(k+1).padStart(2,"0");$("#rlTitle").textContent=REFS[k][1];
+      const el=$(".rl-count");el.classList.remove("swap");void el.offsetWidth;el.classList.add("swap")}
+    $("#rlBar").style.transform=`scaleX(${t.toFixed(3)})`;
+    $("#rlHint").classList.toggle("gone",t>.02);
+    box.classList.toggle("done",t>.995);
   }
   const req=()=>{if(!raf)raf=requestAnimationFrame(frame)};
-  new IntersectionObserver(es=>{live=es[0].isIntersecting;if(live)req()}).observe(box);
   addEventListener("scroll",req,{passive:true});
   addEventListener("resize",()=>{layout();req()});
-  view.addEventListener("pointermove",e=>{if(e.pointerType!=="mouse")return;mx=e.clientX/innerWidth*2-1;my=e.clientY/innerHeight*2-1;req()});
-  view.addEventListener("pointerleave",()=>{mx=my=0;req()});
+  addEventListener("load",()=>{layout();req()});
   layout();frame();
 })();
-const ba=$(".ba"),baIn=$(".ba input");
-baIn.addEventListener("input",()=>ba.style.setProperty("--pos",baIn.value+"%"));
 
 /* ---------- Öffnungszeiten ---------- */
 function berlinNow(){
