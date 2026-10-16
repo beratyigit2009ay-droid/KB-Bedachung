@@ -55,7 +55,6 @@
         <path d="M-80 380 L120 190 L320 380" stroke="rgba(37,33,31,.05)" stroke-width="10" style="animation-delay:.8s"/>
       </svg>
     </div>
-    <canvas id="particles"></canvas>
   </div>
   <div class="wrap">
     <div>
@@ -92,25 +91,15 @@
   </div>
 </section>
 
-<!-- 2b) REFERENZEN: Fotos in 3D -->
-<section class="showcase" id="referenzen">
-  <div class="sc-3d" id="sc3d">
-    <div class="sc-sticky">
-      <svg class="sc-lines" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden="true"><path d="M-20 360L180 170L380 360L580 120L780 360L980 170L1220 380"/></svg>
-      <div class="sc-head wrap">
-        <p class="label">Referenzen</p>
-        <h2>Echte Dächer. <span>Echte Baustellen.</span></h2>
-      </div>
-      <div class="sc-stage" id="stage"></div>
-      <div class="sc-info wrap" aria-live="polite">
-        <div class="sc-count"><b id="scNum">01</b><span>/ 07</span></div>
-        <div class="sc-cap"><span id="scTag"></span><b id="scTitle"></b><p id="scText"></p></div>
-        <div class="sc-bar"><i id="scBar"></i></div>
-      </div>
-      <p class="sc-hint" id="scHint">Scrollen</p>
+<!-- 2b) REFERENZEN: Fotogalerie -->
+<section class="sec gallery" id="referenzen">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="label" data-reveal>Referenzen</p><h2 data-reveal style="--d:.1s">Ausgewählte Projekte.</h2></div>
+      <p data-reveal style="--d:.2s">Echte Fotos von unseren Baustellen in Ichenhausen und Umgebung. Zum Vergrößern ein Bild anklicken.</p>
     </div>
+    <div class="gal" id="stage"></div>
   </div>
-  <div class="wrap sc-ba"><p class="label">Vorher / Nachher</p><div class="refs" id="refs"></div></div>
 </section>
 
 <!-- 3) ÜBER UNS -->
