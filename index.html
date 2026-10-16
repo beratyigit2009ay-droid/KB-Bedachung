@@ -55,7 +55,6 @@
         <path d="M-80 380 L120 190 L320 380" stroke="rgba(37,33,31,.05)" stroke-width="10" style="animation-delay:.8s"/>
       </svg>
     </div>
-    <canvas id="particles"></canvas>
   </div>
   <div class="wrap">
     <div>
@@ -92,32 +91,14 @@
   </div>
 </section>
 
-<!-- 2b) REFERENZEN: Dachbahn rollt aus -->
-<section class="showcase" id="referenzen">
-  <div class="rl" id="rollout">
-    <div class="rl-sticky">
-      <div class="rl-head wrap">
-        <div><p class="label">Referenzen</p><h2>Bahn für Bahn. <span>Dach für Dach.</span></h2></div>
-        <div class="rl-count" aria-live="polite"><b id="rlNum">01</b><span>/ 07</span><small id="rlTitle"></small></div>
-      </div>
-      <div class="rl-roof" id="rlRoof">
-        <div class="rl-sheet" id="rlSheet"><div class="rl-track" id="stage"></div></div>
-        <div class="rl-heat" id="rlHeat" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <div class="rl-roll" id="rlRoll" aria-hidden="true">
-          <div class="rl-body"></div>
-          <svg class="rl-cap top" viewBox="-50 -50 100 100"><circle r="48" class="c"/><path class="sp" d=""/></svg>
-          <svg class="rl-cap bot" viewBox="-50 -50 100 100"><circle r="48" class="c"/><path class="sp" d=""/></svg>
-        </div>
-        <svg class="rl-torch" id="rlTorch" viewBox="0 0 220 120" aria-hidden="true">
-          <defs><radialGradient id="rlFl" cx=".15" cy=".5" r=".85"><stop offset="0" stop-color="#fff6c8"/><stop offset=".25" stop-color="#ffc24a"/><stop offset=".6" stop-color="#f06a1d" stop-opacity=".85"/><stop offset="1" stop-color="#e3342b" stop-opacity="0"/></radialGradient></defs>
-          <path class="fl" d="M8 60C30 40 70 44 104 56C70 70 30 80 8 60Z" fill="url(#rlFl)"/>
-          <path class="fl f2" d="M6 60C24 50 52 52 78 58C54 66 26 70 6 60Z" fill="url(#rlFl)"/>
-          <rect x="100" y="48" width="44" height="24" rx="5" fill="#3a3d42"/><rect x="104" y="51" width="36" height="5" fill="#5b6067"/>
-          <path d="M144 60H212" stroke="#2a2c30" stroke-width="10" stroke-linecap="round"/><path d="M180 60v26" stroke="#c4733a" stroke-width="8" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div class="rl-foot wrap"><div class="rl-line"><i id="rlBar"></i></div><p class="rl-hint" id="rlHint">Scrollen, die Bahn rollt aus</p></div>
+<!-- 2b) REFERENZEN: Fotogalerie -->
+<section class="sec gallery" id="referenzen">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="label" data-reveal>Referenzen</p><h2 data-reveal style="--d:.1s">Ausgewählte Projekte.</h2></div>
+      <p data-reveal style="--d:.2s">Echte Fotos von unseren Baustellen in Ichenhausen und Umgebung. Zum Vergrößern ein Bild anklicken.</p>
     </div>
+    <div class="gal" id="stage"></div>
   </div>
 </section>
 

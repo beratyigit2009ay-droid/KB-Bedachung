@@ -68,10 +68,6 @@ function heroStack(){
     y=yt;
   });
   const top=y; // Oberkante Kies
-  // Regen
-  let rain="";for(let i=0;i<34;i++){const x=40+(i*97)%540,yy=(i*61)%300,l=14+(i*7)%12;rain+=`<path d="M${x} ${yy}l-4 ${l}" style="--r:${(i%7)*.17}s"/>`}
-  // Spritzer auf der Oberseite
-  let spl="";for(let i=0;i<7;i++){const x=x0+40+i*62+(i%2)*20,yy=top-8-(i%3)*10;spl+=`<ellipse cx="${x+((i%3)*12)}" cy="${yy}" rx="9" ry="2.6" style="--s:${i*.33}s"/>`}
   $("#lStack").innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice"><defs>
     <linearGradient id="st-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c1f25"/><stop offset=".65" stop-color="#2c2a2d"/><stop offset="1" stop-color="#4a3326"/></linearGradient>
     <radialGradient id="st-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e08a4a" stop-opacity=".55"/><stop offset="1" stop-color="#e08a4a" stop-opacity="0"/></radialGradient>
@@ -82,18 +78,7 @@ function heroStack(){
   </defs>
   <rect width="${W}" height="${H}" fill="url(#st-sky)"/>
   <circle cx="300" cy="${top+10}" r="300" fill="url(#st-glow)"/>
-  <g class="st-rain" stroke="rgba(200,215,235,.55)" stroke-width="2" stroke-linecap="round">${rain}</g>
   <g class="st-stack">${layers}</g>
-  <g class="st-spl" fill="none" stroke="rgba(210,225,240,.8)" stroke-width="1.5">${spl}</g>
-  <g class="st-out">
-    <path d="M${x1+dx-6} ${top-dy+30}h34v12" fill="none" stroke="#9aa1a8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="st-drip" d="M${x1+dx+28} ${top-dy+50}v26" stroke="rgba(170,200,235,.9)" stroke-width="4" stroke-linecap="round" stroke-dasharray="6 12"/>
-  </g>
-  <g class="st-badge" transform="translate(${x0+6} ${top-dy-92})">
-    <rect width="168" height="46" rx="23" fill="#c4733a"/>
-    <path d="M22 23l7 7 13-14" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="54" y="30" class="st-b">100 % dicht</text>
-  </g>
   </svg>`;
 }
 heroStack();
@@ -119,8 +104,7 @@ const REFS=[
   ["gewerbedach","Gewerbedach mit Lichtkuppeln","Gewerbe","Große Dachfläche mit mehreren Lichtkuppeln und Abläufen.","Gewerbliches Flachdach mit Lichtkuppeln"],
   ["anschluss-fassade","Anschluss an die Fassade","Flachdach","Beschieferte Bahn, sauber an die Metallwand angeschlossen.","Flachdach mit roter Schieferbahn an einer Metallfassade"]
 ];
-const PRINT="KB BEDACHUNGEN · FLACHDACH · ICHENHAUSEN · ";
-$("#stage").innerHTML=REFS.map((r,i)=>`<button type="button" class="pc" data-i="${i}" aria-label="${r[1]} groß ansehen"><span class="pc-ph"><img src="assets/img/${r[0]}.jpg" alt="${r[4]}" ${i>2?'loading="lazy"':''} decoding="async"></span><span class="pc-lbl"><em>${String(i+1).padStart(2,"0")}</em><span>${r[2]}</span><b>${r[1]}</b></span><span class="pc-print" aria-hidden="true">${PRINT.repeat(4)}</span></button>`).join("");
+$("#stage").innerHTML=REFS.map((r,i)=>`<figure class="g-item g${i+1}" data-reveal style="--d:${(i%4)*.06}s"><button type="button" class="pc" data-i="${i}" aria-label="${r[1]} vergrößern"><img src="assets/img/${r[0]}.jpg" alt="${r[4]}" loading="lazy" decoding="async"></button><figcaption><span>${r[2]}</span>${r[1]}</figcaption></figure>`).join("");
 
 /* Lightbox */
 const lb=$("#lb");let lbI=0,lbLast=null;
@@ -131,41 +115,6 @@ $("#stage").addEventListener("click",e=>{const c=e.target.closest(".pc");if(c)lb
 $(".lb-x",lb).onclick=lbClose;$(".prev",lb).onclick=()=>lbShow(lbI-1);$(".next",lb).onclick=()=>lbShow(lbI+1);
 lb.addEventListener("click",e=>{if(e.target===lb)lbClose()});
 addEventListener("keydown",e=>{if(!lb.classList.contains("open"))return;if(e.key==="Escape")lbClose();if(e.key==="ArrowLeft")lbShow(lbI-1);if(e.key==="ArrowRight")lbShow(lbI+1)});
-
-/* Fotos: Dachbahn rollt beim Scrollen aus */
-(()=>{const box=$("#rollout"),roof=$("#rlRoof"),track=$("#stage"),roll=$("#rlRoll"),heat=$("#rlHeat"),torch=$("#rlTorch"),pcs=$$("#stage .pc"),N=pcs.length,caps=$$("#rlRoll .sp");
-  let L=0,cur=-1,raf=0;
-  if(reduce){box.classList.add("flat");return}
-  function spiral(turns){let d="";const n=Math.max(2,turns)*40;for(let k=0;k<=n;k++){const a=k/40*Math.PI*2,r=4+44*k/n;d+=(k?"L":"M")+(Math.cos(a)*r).toFixed(1)+" "+(Math.sin(a)*r).toFixed(1)}return d}
-  function layout(){const g=parseFloat(getComputedStyle(track).columnGap)||0;L=track.scrollWidth+g;
-    box.style.height=(innerHeight+L*(calm()?1:1.1))+"px"}
-  function frame(){raf=0;const m=calm(),r=box.getBoundingClientRect(),run=box.offsetHeight-innerHeight,
-      t=Math.min(1,Math.max(0,-r.top/run)),W=roof.clientWidth,rx=roof.dataset.rx=W*(m?.88:.8),u=12+t*(L-12);
-    track.style.transform=`translate3d(${(rx-u).toFixed(1)}px,0,0)`;
-    $("#rlSheet").style.clipPath=`inset(0 ${(W-rx).toFixed(1)}px 0 0)`;
-    // Rolle: wird beim Abrollen dünner und dreht sich
-    const H=roof.clientHeight,D=H*(m?.34:.4)*(1-.55*t)+H*.06;
-    roll.style.cssText=`left:${(rx-D*.15).toFixed(1)}px;width:${D.toFixed(1)}px;--rot:${(u/(Math.PI*D)*360).toFixed(1)}deg;--shift:${(-u%52).toFixed(1)}px`;
-    caps.forEach(c=>c.setAttribute("d",spiral(6*(1-t)+1.5)));
-    heat.style.left=(rx-34)+"px";torch.style.left=(rx+D*.75-torch.clientWidth*.42)+"px";
-    // Frisch verschweißt: Felder nah an der Rolle glühen
-    let k=0,best=1e9;
-    pcs.forEach((c,i)=>{const b=c.getBoundingClientRect(),rr=roof.getBoundingClientRect(),right=b.right-rr.left,mid=(b.left+b.right)/2-rr.left,
-        dist=rx-right,hot=Math.max(0,1-dist/(b.width*.9));
-      c.style.setProperty("--hot",hot.toFixed(3));
-      const dc=Math.abs(mid-(rx-b.width*.65));if(dc<best&&right<=rx+4){best=dc;k=i}});
-    if(k!==cur){cur=k;$("#rlNum").textContent=String(k+1).padStart(2,"0");$("#rlTitle").textContent=REFS[k][1];
-      const el=$(".rl-count");el.classList.remove("swap");void el.offsetWidth;el.classList.add("swap")}
-    $("#rlBar").style.transform=`scaleX(${t.toFixed(3)})`;
-    $("#rlHint").classList.toggle("gone",t>.02);
-    box.classList.toggle("done",t>.995);
-  }
-  const req=()=>{if(!raf)raf=requestAnimationFrame(frame)};
-  addEventListener("scroll",req,{passive:true});
-  addEventListener("resize",()=>{layout();req()});
-  addEventListener("load",()=>{layout();req()});
-  layout();frame();
-})();
 
 /* ---------- Öffnungszeiten ---------- */
 function berlinNow(){
@@ -248,14 +197,4 @@ if(!reduce&&matchMedia("(hover:hover)").matches){
     bgLayers.forEach(l=>{const k=+l.dataset.depth*80;l.style.translate=`${dx*k}px ${dy*k}px`})});
 }
 
-/* ---------- Partikel im Hero (Canvas) ---------- */
-const cv=$("#particles");
-if(cv&&cv.getContext&&!reduce&&!calm()){
-  const ctx=cv.getContext("2d");let W=0,H=0,dpr=Math.min(2,devicePixelRatio||1),pts=[],running=true;
-  function size(){W=cv.offsetWidth;H=cv.offsetHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
-    pts=Array.from({length:Math.round(W*H/22000)},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.4,vy:-(Math.random()*.25+.05),vx:(Math.random()-.5)*.15,a:Math.random()*.5+.15}))}
-  size();addEventListener("resize",size);
-  new IntersectionObserver(es=>running=es[0].isIntersecting).observe(cv);
-  (function tick(){if(running){ctx.clearRect(0,0,W,H);for(const p of pts){p.x+=p.vx;p.y+=p.vy;if(p.y<-5){p.y=H+5;p.x=Math.random()*W}ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);ctx.fillStyle=`rgba(217,139,77,${p.a})`;ctx.fill()}}requestAnimationFrame(tick)})();
-}
 })();
