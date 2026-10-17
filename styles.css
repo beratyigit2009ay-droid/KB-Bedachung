@@ -435,3 +435,43 @@ footer{background:var(--bg-2);padding-block:70px 30px;border-top:1px solid var(-
 .js [data-reveal],.js [data-reveal="left"],.js [data-reveal="right"],.js [data-reveal="zoom"]{transform:translateY(14px);transition:opacity .8s ease,transform .8s var(--ease)}
 .js [data-reveal].in{transform:none}
 .svc:hover,.js .svc.in:hover,.feature:hover,.way:hover{transform:none}
+
+/* ===== Handy: aufgeräumt und kompakt ===== */
+@media (max-width:620px){
+  .preview-note{font-size:.75rem;padding:6px 40px 6px 12px}
+  .sec{padding-block:56px}
+  .sec-head{margin-bottom:28px}
+  .sec-head h2,.h2{font-size:1.85rem}
+  /* Hero */
+  .hero{padding-block:24px 40px}
+  .hero-logo{width:150px}
+  .hero h1{font-size:2.3rem;line-height:1.08}
+  .hero .lead{font-size:1rem}
+  .hero .ctas{display:grid;grid-template-columns:1fr;gap:10px}
+  .hero .ctas .btn{justify-content:center;width:100%}
+  .hero .addr{font-size:.74rem;letter-spacing:.05em;align-items:flex-start}
+  .hero-art{max-width:340px;margin-top:8px}
+  .hero-art .chip{right:8px;top:40%;font-size:.68rem;padding:7px 10px}
+  .hero-art .stars{left:8px;bottom:10px;padding:8px 12px;border-radius:8px}
+  .hero-art .stars b{font-size:.95rem}
+  .hero-art .stars span{font-size:.8rem}
+  /* Info-Leiste 2x2 */
+  .info{flex-direction:column;align-items:flex-start;gap:8px;padding:16px 14px}
+  .info .ico{width:36px;height:36px}.info .ico svg{width:19px;height:19px}
+  .info b{font-size:.92rem}
+  .info small{font-size:.78rem;line-height:1.35}
+  .imheader .wrap{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* Leistungen kompakt: Icon links, Text rechts */
+  .services{gap:12px}
+  .svc{display:grid;grid-template-columns:48px 1fr;gap:4px 14px;padding:18px 16px;align-items:start}
+  .svc .ico{grid-row:span 2;width:48px;height:48px;margin:0;border-radius:10px}
+  .svc .ico svg{width:26px;height:26px}
+  .svc h3{font-size:1.08rem;margin-top:2px}
+  .svc p{font-size:.92rem;margin-top:0}
+  /* Über uns */
+  .features{gap:10px}
+  .feature{padding:16px}
+  /* nur WhatsApp unten rechts, kleiner */
+  .fab .up{display:none}
+  .fab a{width:50px;height:50px}
+}
