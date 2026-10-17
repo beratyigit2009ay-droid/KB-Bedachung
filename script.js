@@ -28,7 +28,6 @@ setTimeout(endIntro,reduce?300:3300);
 intro.addEventListener("click",endIntro);
 
 /* ---------- Hinweis, Menü, Impressum, Modal ---------- */
-$("#pnote button").addEventListener("click",()=>$("#pnote").remove());
 const header=$("#top"),burger=$(".burger");
 burger.addEventListener("click",()=>{const o=header.classList.toggle("menu-open");burger.setAttribute("aria-expanded",o)});
 $$("#menu a").forEach(a=>a.addEventListener("click",()=>{header.classList.remove("menu-open");burger.setAttribute("aria-expanded",false)}));
@@ -136,7 +135,7 @@ function renderHours(){
 }
 renderHours();setInterval(renderHours,60000);
 
-/* ---------- Termin-Formular (Vorschau: Fake-Submit) ---------- */
+/* ---------- Termin-Formular: Anfrage als WhatsApp-Nachricht ---------- */
 const form=$("#bookForm");
 $("#f-date").min=new Date().toISOString().slice(0,10);
 form.addEventListener("submit",e=>{
@@ -146,6 +145,14 @@ form.addEventListener("submit",e=>{
   if(!name.value.trim()){name.classList.add("err");name.focus();toast("Bitte geben Sie Ihren Namen an.");return}
   if(!tel.value.trim()&&!mail.value.trim()){tel.classList.add("err");mail.classList.add("err");tel.focus();toast("Bitte Telefon oder E-Mail angeben.");return}
   if(mail.value.trim()&&!/^\S+@\S+\.\S+$/.test(mail.value.trim())){mail.classList.add("err");mail.focus();toast("Bitte eine gültige E-Mail-Adresse angeben.");return}
+  const d=$("#f-date").value,msg=$("#f-msg").value.trim();
+  const lines=["Hallo KB Bedachungen, ich habe eine Anfrage über die Website:","","Name: "+name.value.trim()];
+  if(tel.value.trim())lines.push("Telefon: "+tel.value.trim());
+  if(mail.value.trim())lines.push("E-Mail: "+mail.value.trim());
+  lines.push("Thema: "+$("#f-topic").value);
+  if(d)lines.push("Wunschdatum: "+d.split("-").reverse().join("."));
+  if(msg)lines.push("","Nachricht: "+msg);
+  window.open("https://wa.me/491621546717?text="+encodeURIComponent(lines.join("\n")),"_blank","noopener");
   modal.classList.add("open");document.body.classList.add("locked");$("#mClose").focus();
   form.reset();
 });
