@@ -157,6 +157,60 @@ form.addEventListener("submit",e=>{
   form.reset();
 });
 
+/* =========================================================
+   Bewertungen: 3D-Karussell, beim Scrollen gedreht
+   Echte Google-Bewertungen: [Name, Quelle, Text (leer = nur Sterne)]
+   ========================================================= */
+const REVIEWS=[
+  ["Fatih Kaplan","Google-Bewertung","Wie immer perfekt 😍"],
+  ["Hakan Aydin","Google-Bewertung",""],
+  ["D.K.","Google-Bewertung",""]
+];
+(()=>{
+  const stage=$("#rvStage"),track=$("#rvTrack"),dots=$("#rvDots");if(!stage)return;
+  const G='<svg class="rv-gl" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6A10 10 0 0 0 12 22z"/><path fill="#FBBC05" d="M6.4 14a6 6 0 0 1 0-3.9V7.5H3.1a10 10 0 0 0 0 9z"/><path fill="#EA4335" d="M12 6c1.5 0 2.8.5 3.8 1.5l2.8-2.8A10 10 0 0 0 3.1 7.5L6.4 10C7.2 7.8 9.4 6 12 6z"/></svg>';
+  track.innerHTML=REVIEWS.map((r,i)=>`<article class="rv-card" aria-roledescription="Bewertung" aria-label="Bewertung ${i+1} von ${REVIEWS.length}">${r[2]?'<div class="rv-top"><span class="rv-stars" aria-label="5 von 5 Sternen">★★★★★</span></div>':''}${r[2]?`<blockquote>${r[2]}</blockquote>`:'<p class="rv-only"><span aria-hidden="true">★★★★★</span>5 von 5 Sternen</p>'}<div class="rv-foot"><span class="rv-av">${r[0].trim()[0]}</span><span><b>${r[0]}</b><small>${r[1]}</small></span>${G}</div></article>`).join("");
+  dots.innerHTML=REVIEWS.map((_,i)=>`<button type="button" role="tab" aria-label="Bewertung ${i+1}"></button>`).join("");
+  const cards=$$(".rv-card",track),db=$$("button",dots),n=cards.length;
+  let pos=0,target=0,raf=0;
+  /* Kartenposition im Halbkreis: Mitte flach und scharf, Seiten gedreht und zurückgesetzt */
+  function paint(){
+    const m=calm(),flat=reduce;
+    cards.forEach((c,i)=>{
+      const o=i-pos,a=Math.abs(o);
+      if(flat){c.style.transform="";c.style.opacity="";return}
+      const x=o*(m?60:44),r=-Math.max(-1.4,Math.min(1.4,o))*(m?20:30),z=-a*(m?90:180);
+      c.style.transform=`perspective(1400px) translate3d(calc(-50% + ${x}%),0,${z}px) rotateY(${r}deg)`;
+      c.style.opacity=Math.max(0,Math.min(1,2.2-a)).toFixed(3);c.style.setProperty("--dim",Math.min(1,a)*.55);
+      c.style.zIndex=10-Math.round(a*2);
+      c.classList.toggle("on",a<.5);
+    });
+    db.forEach((b,i)=>b.setAttribute("aria-selected",Math.round(pos)===i));
+  }
+  function loop(){pos+=(target-pos)*.12;if(Math.abs(target-pos)<.002)pos=target;paint();raf=pos!==target?requestAnimationFrame(loop):0}
+  function go(t){target=Math.max(0,Math.min(n-1,t));if(!raf)raf=requestAnimationFrame(loop)}
+  /* Desktop: Fortschritt der Seite durch den Abschnitt bestimmt die vordere Karte */
+  function fromScroll(){
+    if(calm()||reduce||manual)return;
+    const r=stage.getBoundingClientRect(),p=(innerHeight*.7-r.top)/(innerHeight*.75);
+    go(Math.max(0,Math.min(1,p))*(n-1));
+  }
+  let manual=false,mt;
+  function pick(i){manual=true;clearTimeout(mt);mt=setTimeout(()=>manual=false,2500);go(i)}
+  db.forEach((b,i)=>b.addEventListener("click",()=>pick(i)));
+  cards.forEach((c,i)=>c.addEventListener("click",()=>{if(Math.round(pos)!==i)pick(i)}));
+  /* Handy: wischen */
+  let sx=null;
+  stage.addEventListener("touchstart",e=>{sx=e.touches[0].clientX},{passive:true});
+  stage.addEventListener("touchend",e=>{if(sx===null)return;const d=e.changedTouches[0].clientX-sx;if(Math.abs(d)>40)pick(Math.round(target)+(d<0?1:-1));sx=null},{passive:true});
+  stage.addEventListener("keydown",e=>{if(e.key==="ArrowRight")pick(Math.round(target)+1);if(e.key==="ArrowLeft")pick(Math.round(target)-1)});
+  /* Einflug: Bühne kippt beim Hereinscrollen aus der Schräge in die Ebene */
+  const tilt=()=>{if(reduce)return;const r=stage.getBoundingClientRect(),k=Math.max(0,Math.min(1,(innerHeight-r.top)/(innerHeight*.55)));track.style.transform=`rotateX(${((1-k)*(calm()?10:18)).toFixed(2)}deg) translateY(${((1-k)*40).toFixed(1)}px)`};
+  addEventListener("scroll",()=>requestAnimationFrame(()=>{fromScroll();tilt()}),{passive:true});
+  addEventListener("resize",()=>{paint();tilt()});
+  paint();fromScroll();tilt();
+})();
+
 /* ---------- FAQ (Accordion) ---------- */
 const FAQ=[
   ["Welche Dächer macht KB Bedachungen?","Wir sind auf Flachdächer spezialisiert, vor allem Foliendächer für Häuser, Terrassen, Balkone, Garagen und Carports."],

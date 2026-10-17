@@ -3,7 +3,7 @@
 Website für KB Bedachungen, Dachdecker in Ichenhausen. Statische Single-Page aus HTML, CSS und Vanilla JS, ohne Frameworks und ohne Build-Schritt.
 
 ## Dateien
-- `index.html` – Seite mit allen Abschnitten (Hero, Referenzen, Über uns, Leistungen, Öffnungszeiten, Termin, FAQ, Footer, Impressum, Datenschutz)
+- `index.html` – Seite mit allen Abschnitten (Hero, Referenzen, Bewertungen, Über uns, Leistungen, Öffnungszeiten, Termin, FAQ, Footer, Impressum, Datenschutz)
 - `styles.css` – Design und Animationen
 - `script.js` – Logo-Intro, Scroll-Effekte, Öffnungszeiten-Status, Formular (öffnet WhatsApp mit vorbereiteter Nachricht), FAQ, SVG-Illustrationen
 - `assets/logo.svg` – Logo als SVG
