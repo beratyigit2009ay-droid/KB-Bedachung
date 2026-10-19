@@ -554,6 +554,7 @@ footer{background:var(--bg-2);padding-block:70px 30px;border-top:1px solid var(-
 .rv-card::before{content:"\201C";position:absolute;right:24px;top:6px;font:700 6rem/1 var(--f-display);color:var(--copper);opacity:.14}
 .rv-top{display:flex;align-items:center;gap:10px}
 .rv-ex{font:700 .66rem/1 var(--f-label);letter-spacing:.12em;text-transform:uppercase;color:var(--copper-2);background:rgba(196,115,58,.12);padding:5px 7px;border-radius:3px}
+.rv-card blockquote.long{font-size:1.18rem;line-height:1.5}
 .rv-only{margin:0;flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px;font:600 .82rem var(--f-label);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .rv-only span{color:#d89a00;font-size:2.1rem;letter-spacing:6px;line-height:1}
 .rv-card blockquote{margin:18px 0 0;font:500 1.5rem/1.4 var(--f-display);line-height:1.65;flex:1;overflow:auto}
@@ -571,7 +572,7 @@ footer{background:var(--bg-2);padding-block:70px 30px;border-top:1px solid var(-
   .rv-score b{font-size:3rem}
   .rv-bars{margin:0;padding:0 0 0 18px;border-top:0;border-left:1px solid var(--line)}
   .rv-g{grid-column:1/-1;margin-top:16px}
-  .rv-track{height:270px}
+  .rv-track{height:300px}
   .rv-card{width:84%;padding:24px 22px 20px}
   .rv-card blockquote{font-size:1rem}
 }

@@ -164,12 +164,13 @@ form.addEventListener("submit",e=>{
 const REVIEWS=[
   ["Fatih Kaplan","Google-Bewertung","Wie immer perfekt 😍"],
   ["Hakan Aydin","Google-Bewertung",""],
+  ["Berat Yigit","Google-Bewertung","Sehr zuverlässig, professionell und freundlich. Kann KB Bedachungen nur weiterempfehlen!"],
   ["D.K.","Google-Bewertung",""]
 ];
 (()=>{
   const stage=$("#rvStage"),track=$("#rvTrack"),dots=$("#rvDots");if(!stage)return;
   const G='<svg class="rv-gl" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6A10 10 0 0 0 12 22z"/><path fill="#FBBC05" d="M6.4 14a6 6 0 0 1 0-3.9V7.5H3.1a10 10 0 0 0 0 9z"/><path fill="#EA4335" d="M12 6c1.5 0 2.8.5 3.8 1.5l2.8-2.8A10 10 0 0 0 3.1 7.5L6.4 10C7.2 7.8 9.4 6 12 6z"/></svg>';
-  track.innerHTML=REVIEWS.map((r,i)=>`<article class="rv-card" aria-roledescription="Bewertung" aria-label="Bewertung ${i+1} von ${REVIEWS.length}">${r[2]?'<div class="rv-top"><span class="rv-stars" aria-label="5 von 5 Sternen">★★★★★</span></div>':''}${r[2]?`<blockquote>${r[2]}</blockquote>`:'<p class="rv-only"><span aria-hidden="true">★★★★★</span>5 von 5 Sternen</p>'}<div class="rv-foot"><span class="rv-av">${r[0].trim()[0]}</span><span><b>${r[0]}</b><small>${r[1]}</small></span>${G}</div></article>`).join("");
+  track.innerHTML=REVIEWS.map((r,i)=>`<article class="rv-card" aria-roledescription="Bewertung" aria-label="Bewertung ${i+1} von ${REVIEWS.length}">${r[2]?'<div class="rv-top"><span class="rv-stars" aria-label="5 von 5 Sternen">★★★★★</span></div>':''}${r[2]?`<blockquote${r[2].length>40?' class="long"':''}>${r[2]}</blockquote>`:'<p class="rv-only"><span aria-hidden="true">★★★★★</span>5 von 5 Sternen</p>'}<div class="rv-foot"><span class="rv-av">${r[0].trim()[0]}</span><span><b>${r[0]}</b><small>${r[1]}</small></span>${G}</div></article>`).join("");
   dots.innerHTML=REVIEWS.map((_,i)=>`<button type="button" role="tab" aria-label="Bewertung ${i+1}"></button>`).join("");
   const cards=$$(".rv-card",track),db=$$("button",dots),n=cards.length;
   let pos=0,target=0,raf=0;
