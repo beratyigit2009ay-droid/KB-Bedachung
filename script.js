@@ -17,15 +17,12 @@ const DAYS=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Sam
 /* ---------- Toast ---------- */
 let tt;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2600)}
 
-/* ---------- Logo-Intro ---------- */
+/* ---------- Logo am Anfang des Scroll-Intros ---------- */
 const intro=$("#intro"),hero=$("#hero");
 $$(".kb-l",intro).forEach((l,i)=>l.style.animationDelay=(1.4+i*.05)+"s");
-document.body.classList.add("locked");
-let introDone=false;
-function endIntro(){if(introDone)return;introDone=true;intro.classList.add("out");document.body.classList.remove("locked");setTimeout(()=>hero.classList.add("go"),250)}
 requestAnimationFrame(()=>intro.classList.add("play"));
-setTimeout(endIntro,reduce?300:3300);
-intro.addEventListener("click",endIntro);
+/* Hero blendet ein, sobald er nach dem Intro ins Bild kommt */
+if("IntersectionObserver" in window){const hio=new IntersectionObserver(es=>{if(es[0].isIntersecting){hero.classList.add("go");hio.disconnect()}},{threshold:.15});hio.observe(hero)}else hero.classList.add("go");
 
 /* ---------- Hinweis, Menü, Impressum, Modal ---------- */
 const header=$("#top"),burger=$(".burger");

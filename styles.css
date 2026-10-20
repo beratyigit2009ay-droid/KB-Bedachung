@@ -103,15 +103,12 @@ section{position:relative}
 @keyframes shine{0%{transform:translateX(-50px) skewX(-20deg);opacity:1}35%{transform:translateX(240px) skewX(-20deg);opacity:1}36%,100%{opacity:0;transform:translateX(240px) skewX(-20deg)}}
 
 /* ---------- Intro ---------- */
-#intro{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;transition:clip-path 1s var(--ease),visibility 0s 1s;clip-path:polygon(0 0,100% 0,100% 100%,50% 100%,0 100%)}
-#intro.out{clip-path:polygon(0 0,100% 0,100% 0,50% 0,0 0);visibility:hidden}
-#intro .stage{width:min(520px,76vw);position:relative;filter:drop-shadow(0 0 40px rgba(227,52,43,.25))}
+#intro{position:absolute;inset:0;z-index:3;display:grid;place-items:center;pointer-events:none;will-change:opacity,transform}
+#intro .stage{width:min(520px,76vw);position:relative;filter:drop-shadow(0 22px 34px rgba(60,40,20,.14))}
 #intro .bar{position:absolute;left:30%;right:30%;bottom:-30px;height:3px;background:var(--line);overflow:hidden;border-radius:2px}
 #intro .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--copper),var(--red));transform-origin:left;transform:scaleX(0)}
 #intro.play .bar i{animation:grow 2.4s var(--ease) forwards}
 @keyframes grow{to{transform:scaleX(1)}}
-#intro .skip{position:absolute;right:var(--gutter);bottom:calc(24px + env(safe-area-inset-bottom,0px));font:600 .85rem var(--f-label);letter-spacing:.14em;text-transform:uppercase;background:none;border:1px solid var(--line);color:var(--muted);padding:10px 16px;border-radius:40px;cursor:pointer}
-#intro .skip:hover{color:var(--fg);border-color:var(--fg)}
 #intro .kb-roof-dark{opacity:0;transform:translate(-60px,50px)}
 #intro .kb-roof-red{opacity:0;transform:translate(60px,-50px)}
 #intro .kb-house{clip-path:inset(0 0 100% 0)}
@@ -576,3 +573,22 @@ footer{background:var(--bg-2);padding-block:70px 30px;border-top:1px solid var(-
   .rv-track{height:auto;display:grid;gap:16px}
   .rv-card{position:static;width:auto;transform:none!important}
 }
+
+/* ---------- Scroll-Intro (Film) ---------- */
+.film{position:relative;height:600vh;background:var(--bg)}
+.film-pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:radial-gradient(ellipse 80% 70% at 50% 45%,#fffdfa 0%,var(--bg) 70%)}
+#filmCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0}
+.film-hint{position:absolute;left:50%;bottom:calc(34px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;font:600 .78rem var(--f-label);letter-spacing:.24em;text-transform:uppercase;color:var(--muted);z-index:4;margin:0}
+.film-hint i{width:1px;height:38px;background:linear-gradient(var(--copper),transparent);animation:hint 2.2s ease-in-out infinite;transform-origin:top}
+@keyframes hint{0%{transform:scaleY(0)}50%{transform:scaleY(1);opacity:1}100%{transform:scaleY(1);opacity:0}}
+.film-lines p{position:absolute;left:0;right:0;bottom:15vh;margin:0;padding:0 var(--gutter);text-align:center;font:700 clamp(1.9rem,4.6vw,3.6rem)/1.1 var(--f-display);letter-spacing:-.01em;color:var(--fg);opacity:0;z-index:4;text-shadow:0 2px 30px rgba(247,244,240,.95),0 0 2px rgba(247,244,240,.8)}
+.film-end{position:absolute;left:0;right:0;bottom:12vh;text-align:center;opacity:0;z-index:5;padding:0 var(--gutter);pointer-events:none}
+.film-claim{margin:0 0 22px;font:700 clamp(1rem,1.9vw,1.35rem)/1.3 var(--f-label);letter-spacing:.26em;text-transform:uppercase;color:var(--fg);text-shadow:0 2px 24px rgba(247,244,240,.95)}
+.film-fade{position:absolute;inset:0;background:var(--bg);opacity:0;pointer-events:none;z-index:6}
+.film-skip{position:absolute;right:var(--gutter);bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:7;font:600 .8rem var(--f-label);letter-spacing:.14em;text-transform:uppercase;background:rgba(247,244,240,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);color:var(--muted);padding:10px 16px;border-radius:40px;cursor:pointer;transition:opacity .3s,color .2s,border-color .2s}
+.film-skip:hover{color:var(--fg);border-color:var(--fg)}
+.in-film .fab{opacity:0!important;pointer-events:none}
+.film-off{height:auto}
+.film-off .film-pin{display:none}
+@media (max-width:860px){.film{height:480vh}.film-lines p{bottom:18vh}.film-end{bottom:14vh}}
+@media (max-width:620px){.film-skip{left:50%;right:auto;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px))}.film-hint{bottom:calc(78px + env(safe-area-inset-bottom,0px))}}
