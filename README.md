@@ -5,7 +5,7 @@ Website für KB Bedachungen, Dachdecker in Ichenhausen. Statische Single-Page au
 ## Dateien
 - `index.html` – Seite mit allen Abschnitten (Hero, Referenzen, Bewertungen, Über uns, Leistungen, Öffnungszeiten, Termin, FAQ, Footer, Impressum, Datenschutz)
 - `styles.css` – Design und Animationen
-- `film.js` – Scroll-Intro: 3D-Haus, dessen Dach beim Scrollen entsteht (three.js)
+- `film.js` – Scroll-Intro: modernes Gebäude, auf dem beim Scrollen Flachdach, Garagen-Foliendach und Dachterrasse fachgerecht entstehen (three.js)
 - `script.js` – Logo im Intro, Scroll-Effekte, Öffnungszeiten-Status, Formular (öffnet WhatsApp mit vorbereiteter Nachricht), FAQ, SVG-Illustrationen
 - `assets/logo.svg` – Logo als SVG
 - `assets/img/` – Projektfotos
