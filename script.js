@@ -17,15 +17,12 @@ const DAYS=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Sam
 /* ---------- Toast ---------- */
 let tt;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2600)}
 
-/* ---------- Logo-Intro ---------- */
+/* ---------- Logo am Anfang des Scroll-Intros ---------- */
 const intro=$("#intro"),hero=$("#hero");
 $$(".kb-l",intro).forEach((l,i)=>l.style.animationDelay=(1.4+i*.05)+"s");
-document.body.classList.add("locked");
-let introDone=false;
-function endIntro(){if(introDone)return;introDone=true;intro.classList.add("out");document.body.classList.remove("locked");setTimeout(()=>hero.classList.add("go"),250)}
 requestAnimationFrame(()=>intro.classList.add("play"));
-setTimeout(endIntro,reduce?300:3300);
-intro.addEventListener("click",endIntro);
+/* Hero blendet ein, sobald er nach dem Intro ins Bild kommt */
+if("IntersectionObserver" in window){const hio=new IntersectionObserver(es=>{if(es[0].isIntersecting){hero.classList.add("go");hio.disconnect()}},{threshold:.15});hio.observe(hero)}else hero.classList.add("go");
 
 /* ---------- Hinweis, Menü, Impressum, Modal ---------- */
 const header=$("#top"),burger=$(".burger");
@@ -84,14 +81,14 @@ heroStack();
 
 /* ---------- Leistungen (SVG-Icons) ---------- */
 const SVC=[
-  ["Flachdach","Neubau und Abdichtung von Flachdächern, mit Dämmung, Attika und sauberer Entwässerung.",'<path d="M3 9h18v11H3z"/><path d="M3 9l2-3h14l2 3"/><path d="M7 13h10"/>'],
-  ["Foliendach","Abdichtung mit Kunststoff- oder EPDM-Dachfolie, nahtlos verarbeitet und dicht angeschlossen.",'<path d="M3 17l9-4 9 4-9 4z"/><path d="M3 13l9-4 9 4"/><path d="M7 11V7m10 4V7"/>'],
-  ["Terrassen & Balkone","Abdichtung von Dachterrassen und Balkonen mit Folie, damit kein Wasser in die Bausubstanz läuft.",'<path d="M3 12h18"/><path d="M5 12v8M19 12v8M5 16h14"/><path d="M8 12V6h8v6"/>'],
-  ["Garagen & Carports","Garagendächer und Carports mit Foliendach, als Sanierung oder neu.",'<path d="M3 10l9-5 9 5v10H3z"/><path d="M7 20v-7h10v7M7 16h10"/>'],
-  ["Flachdachsanierung","Alte, undichte Flachdächer prüfen, rückbauen und mit neuer Abdichtung versehen.",'<path d="M3 9h18v11H3z"/><path d="M8 15l3 3 5-6"/>'],
-  ["Reparatur & Leckortung","Undichte Stellen am Flachdach finden und reparieren, auch nach einem Unwetter.",'<path d="M12 3s5 6 5 10a5 5 0 0 1-10 0c0-4 5-10 5-10z"/><path d="M10 14a2 2 0 0 0 2 2"/>']
+  ["Flachdach","Neubau und Abdichtung von Flachdächern, mit Dämmung, Attika und sauberer Entwässerung.","flachdach","Flachdach-Neubau mit Bitumenbahnen"],
+  ["Foliendach","Abdichtung mit Kunststoff- oder EPDM-Dachfolie, nahtlos verarbeitet und dicht angeschlossen.","foliendach","Großes Dach mit heller Kunststofffolie"],
+  ["Terrassen & Balkone","Abdichtung von Dachterrassen und Balkonen mit Folie, damit kein Wasser in die Bausubstanz läuft.","terrasse","Abgedichteter Laubengang mit Geländer"],
+  ["Garagen & Carports","Garagendächer und Carports mit Foliendach, als Sanierung oder neu.","garage","Kleines Flachdach mit Kies und Lichtkuppel"],
+  ["Flachdachsanierung","Alte, undichte Flachdächer prüfen, rückbauen und mit neuer Abdichtung versehen.","sanierung","Neue Abdichtung am Anschluss zur Fassade"],
+  ["Reparatur & Leckortung","Undichte Stellen am Flachdach finden und reparieren, auch nach einem Unwetter.","reparatur","Abdichtungsbahn wird mit dem Brenner verschweißt"]
 ];
-$("#services").innerHTML=SVC.map(([t,p,ico],i)=>`<article class="svc" data-reveal style="--d:${(i%3)*.1}s"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ico}</svg></div><h3>${t}</h3><p>${p}</p></article>`).join("");
+$("#services").innerHTML=SVC.map(([t,p,img,alt],i)=>`<article class="svc" data-reveal style="--d:${(i%3)*.1}s"><div class="pic"><img src="assets/img/klein/${img}.jpg" alt="${alt}" loading="lazy" decoding="async" width="720" height="450"></div><h3>${t}</h3><p>${p}</p></article>`).join("");
 
 /* ---------- Referenzen: Fotos ---------- */
 const REFS=[
@@ -164,12 +161,13 @@ form.addEventListener("submit",e=>{
 const REVIEWS=[
   ["Fatih Kaplan","Google-Bewertung","Wie immer perfekt 😍"],
   ["Hakan Aydin","Google-Bewertung",""],
+  ["Berat Yigit","Google-Bewertung","Sehr zuverlässig, professionell und freundlich. Kann KB Bedachungen nur weiterempfehlen!"],
   ["D.K.","Google-Bewertung",""]
 ];
 (()=>{
   const stage=$("#rvStage"),track=$("#rvTrack"),dots=$("#rvDots");if(!stage)return;
   const G='<svg class="rv-gl" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6A10 10 0 0 0 12 22z"/><path fill="#FBBC05" d="M6.4 14a6 6 0 0 1 0-3.9V7.5H3.1a10 10 0 0 0 0 9z"/><path fill="#EA4335" d="M12 6c1.5 0 2.8.5 3.8 1.5l2.8-2.8A10 10 0 0 0 3.1 7.5L6.4 10C7.2 7.8 9.4 6 12 6z"/></svg>';
-  track.innerHTML=REVIEWS.map((r,i)=>`<article class="rv-card" aria-roledescription="Bewertung" aria-label="Bewertung ${i+1} von ${REVIEWS.length}">${r[2]?'<div class="rv-top"><span class="rv-stars" aria-label="5 von 5 Sternen">★★★★★</span></div>':''}${r[2]?`<blockquote>${r[2]}</blockquote>`:'<p class="rv-only"><span aria-hidden="true">★★★★★</span>5 von 5 Sternen</p>'}<div class="rv-foot"><span class="rv-av">${r[0].trim()[0]}</span><span><b>${r[0]}</b><small>${r[1]}</small></span>${G}</div></article>`).join("");
+  track.innerHTML=REVIEWS.map((r,i)=>`<article class="rv-card" aria-roledescription="Bewertung" aria-label="Bewertung ${i+1} von ${REVIEWS.length}">${r[2]?'<div class="rv-top"><span class="rv-stars" aria-label="5 von 5 Sternen">★★★★★</span></div>':''}${r[2]?`<blockquote${r[2].length>40?' class="long"':''}>${r[2]}</blockquote>`:'<p class="rv-only"><span aria-hidden="true">★★★★★</span>5 von 5 Sternen</p>'}<div class="rv-foot"><span class="rv-av">${r[0].trim()[0]}</span><span><b>${r[0]}</b><small>${r[1]}</small></span>${G}</div></article>`).join("");
   dots.innerHTML=REVIEWS.map((_,i)=>`<button type="button" role="tab" aria-label="Bewertung ${i+1}"></button>`).join("");
   const cards=$$(".rv-card",track),db=$$("button",dots),n=cards.length;
   let pos=0,target=0,raf=0;
