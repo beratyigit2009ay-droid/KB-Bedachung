@@ -250,24 +250,20 @@ header.scrolled .brand{width:90px}
 .features{display:grid;gap:14px}
 .feature{display:flex;gap:18px;align-items:flex-start;padding:22px;background:var(--card);border:1px solid var(--line);border-radius:12px;transition:border-color .3s,transform .3s var(--ease),box-shadow .3s}
 .feature:hover{border-color:var(--copper-2);transform:translateX(6px);box-shadow:var(--glow)}
-.feature .n{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:8px;background:linear-gradient(135deg,var(--copper),var(--copper-2));color:#1a1112}
-.feature .n svg{width:22px;height:22px}
+.feature .n{flex:none;min-width:44px;padding-top:2px;font:700 1.5rem/1 var(--f-label);letter-spacing:.04em;color:var(--copper)}
 .feature h3{font-size:1.12rem}
 .feature p{margin-top:4px;font-size:.98rem}
 @media (max-width:860px){.about{grid-template-columns:1fr}}
 
 /* ---------- Leistungen ---------- */
 .services{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-.svc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:30px 26px 26px;position:relative;overflow:hidden;transition:transform .35s var(--ease),box-shadow .35s,border-color .35s}
+.svc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 0 26px;position:relative;overflow:hidden;transition:transform .35s var(--ease),box-shadow .35s,border-color .35s}
 .js .svc.in:hover,.svc:hover{transform:translateY(-8px);box-shadow:var(--glow);border-color:var(--copper-2)}
-.svc::before{content:"";position:absolute;inset:auto -30% -60% -30%;height:80%;background:radial-gradient(ellipse at 50% 0,rgba(217,139,77,.25),transparent 60%);opacity:0;transition:opacity .4s}
-.svc:hover::before{opacity:1}
-.svc .ico{width:62px;height:62px;border-radius:12px;background:rgba(217,139,77,.1);display:grid;place-items:center;color:var(--copper);margin-bottom:20px;position:relative}
-.svc .ico svg{width:36px;height:36px}
-.svc .ico svg *{stroke-dasharray:120;stroke-dashoffset:120;transition:stroke-dashoffset 1.4s var(--ease) .25s}
-.svc.in .ico svg *{stroke-dashoffset:0}
-.svc h3{font-size:1.3rem;position:relative}
-.svc p{color:var(--muted);margin-top:10px;font-size:1rem;position:relative}
+.svc .pic{aspect-ratio:16/10;overflow:hidden;margin-bottom:22px;background:var(--bg-2)}
+.svc .pic img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s var(--ease)}
+.svc:hover .pic img{transform:scale(1.04)}
+.svc h3{font-size:1.3rem;position:relative;padding-inline:26px}
+.svc p{color:var(--muted);margin-top:10px;font-size:1rem;position:relative;padding-inline:26px}
 @media (max-width:980px){.services{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:620px){.services{grid-template-columns:1fr}}
 
@@ -517,14 +513,14 @@ footer{background:var(--bg-2);padding-block:70px 30px;border-top:1px solid var(-
   .imheader .wrap{grid-template-columns:repeat(2,minmax(0,1fr))}
   /* Leistungen kompakt: Icon links, Text rechts */
   .services{gap:12px}
-  .svc{display:grid;grid-template-columns:48px 1fr;gap:4px 14px;padding:18px 16px;align-items:start}
-  .svc .ico{grid-row:span 2;width:48px;height:48px;margin:0;border-radius:10px}
-  .svc .ico svg{width:26px;height:26px}
-  .svc h3{font-size:1.08rem;margin-top:2px}
-  .svc p{font-size:.92rem;margin-top:0}
+  .svc{display:grid;grid-template-columns:84px 1fr;gap:4px 14px;padding:12px;align-items:start}
+  .svc .pic{grid-row:span 2;width:84px;height:84px;aspect-ratio:auto;margin:0;border-radius:8px}
+  .svc h3{font-size:1.08rem;margin-top:4px;padding:0}
+  .svc p{font-size:.92rem;margin-top:0;padding:0}
   /* Über uns */
   .features{gap:10px}
   .feature{padding:16px}
+  .feature .n{min-width:34px;font-size:1.25rem}
   /* nur WhatsApp unten rechts, kleiner */
   .fab .up{display:none}
   .fab a{width:50px;height:50px}

@@ -84,14 +84,14 @@ heroStack();
 
 /* ---------- Leistungen (SVG-Icons) ---------- */
 const SVC=[
-  ["Flachdach","Neubau und Abdichtung von Flachdächern, mit Dämmung, Attika und sauberer Entwässerung.",'<path d="M3 9h18v11H3z"/><path d="M3 9l2-3h14l2 3"/><path d="M7 13h10"/>'],
-  ["Foliendach","Abdichtung mit Kunststoff- oder EPDM-Dachfolie, nahtlos verarbeitet und dicht angeschlossen.",'<path d="M3 17l9-4 9 4-9 4z"/><path d="M3 13l9-4 9 4"/><path d="M7 11V7m10 4V7"/>'],
-  ["Terrassen & Balkone","Abdichtung von Dachterrassen und Balkonen mit Folie, damit kein Wasser in die Bausubstanz läuft.",'<path d="M3 12h18"/><path d="M5 12v8M19 12v8M5 16h14"/><path d="M8 12V6h8v6"/>'],
-  ["Garagen & Carports","Garagendächer und Carports mit Foliendach, als Sanierung oder neu.",'<path d="M3 10l9-5 9 5v10H3z"/><path d="M7 20v-7h10v7M7 16h10"/>'],
-  ["Flachdachsanierung","Alte, undichte Flachdächer prüfen, rückbauen und mit neuer Abdichtung versehen.",'<path d="M3 9h18v11H3z"/><path d="M8 15l3 3 5-6"/>'],
-  ["Reparatur & Leckortung","Undichte Stellen am Flachdach finden und reparieren, auch nach einem Unwetter.",'<path d="M12 3s5 6 5 10a5 5 0 0 1-10 0c0-4 5-10 5-10z"/><path d="M10 14a2 2 0 0 0 2 2"/>']
+  ["Flachdach","Neubau und Abdichtung von Flachdächern, mit Dämmung, Attika und sauberer Entwässerung.","flachdach","Flachdach-Neubau mit Bitumenbahnen"],
+  ["Foliendach","Abdichtung mit Kunststoff- oder EPDM-Dachfolie, nahtlos verarbeitet und dicht angeschlossen.","foliendach","Großes Dach mit heller Kunststofffolie"],
+  ["Terrassen & Balkone","Abdichtung von Dachterrassen und Balkonen mit Folie, damit kein Wasser in die Bausubstanz läuft.","terrasse","Abgedichteter Laubengang mit Geländer"],
+  ["Garagen & Carports","Garagendächer und Carports mit Foliendach, als Sanierung oder neu.","garage","Kleines Flachdach mit Kies und Lichtkuppel"],
+  ["Flachdachsanierung","Alte, undichte Flachdächer prüfen, rückbauen und mit neuer Abdichtung versehen.","sanierung","Neue Abdichtung am Anschluss zur Fassade"],
+  ["Reparatur & Leckortung","Undichte Stellen am Flachdach finden und reparieren, auch nach einem Unwetter.","reparatur","Abdichtungsbahn wird mit dem Brenner verschweißt"]
 ];
-$("#services").innerHTML=SVC.map(([t,p,ico],i)=>`<article class="svc" data-reveal style="--d:${(i%3)*.1}s"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ico}</svg></div><h3>${t}</h3><p>${p}</p></article>`).join("");
+$("#services").innerHTML=SVC.map(([t,p,img,alt],i)=>`<article class="svc" data-reveal style="--d:${(i%3)*.1}s"><div class="pic"><img src="assets/img/klein/${img}.jpg" alt="${alt}" loading="lazy" decoding="async" width="720" height="450"></div><h3>${t}</h3><p>${p}</p></article>`).join("");
 
 /* ---------- Referenzen: Fotos ---------- */
 const REFS=[
