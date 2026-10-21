@@ -143,7 +143,9 @@ function start() {
       li: [...o.children].map(l => ({ el: l, t: +l.dataset.t }))
     }))
   };
-  const win01 = (s, a, b, f = .035) => Math.min(clamp((s - a) / f), clamp((b - s) / f));
+  /* weiche Ein- und Ausblendung (smoothstep) für einen ruhigeren Verlauf */
+  const ease = x => x * x * (3 - 2 * x);
+  const win01 = (s, a, b, f = .045) => ease(Math.min(clamp((s - a) / f), clamp((b - s) / f)));
 
   function paintUI(s) {
     document.body.classList.toggle("in-film", s < .985 && inView());
@@ -155,23 +157,23 @@ function start() {
       ui.logo.style.visibility = lo >= 1 ? "hidden" : "";
     }
     if (ui.hint) ui.hint.style.opacity = 1 - clamp(s / .03);
-    stage.style.opacity = clamp((s - .02) / .09);
+    stage.style.opacity = ease(clamp((s - .02) / .09));
     for (const l of ui.lines) {
       const o = win01(s, l.a, l.b);
       l.el.style.opacity = o;
-      l.el.style.transform = `translateY(${(1 - o) * (s < (l.a + l.b) / 2 ? 24 : -24)}px)`;
+      l.el.style.transform = `translateY(${(1 - o) * (s < (l.a + l.b) / 2 ? 14 : -14)}px)`;
     }
     for (const g of ui.steps) {
       g.el.style.opacity = win01(s, g.a, g.b, .02);
       for (const l of g.li) l.el.classList.toggle("on", s >= l.t);
     }
     if (ui.end) {
-      const eo = clamp((s - .875) / .035);
+      const eo = ease(clamp((s - .875) / .05));
       ui.end.style.opacity = eo;
-      ui.end.style.transform = `translateY(${(1 - eo) * 24}px)`;
+      ui.end.style.transform = `translateY(${(1 - eo) * 14}px)`;
       ui.end.style.pointerEvents = eo > .5 ? "auto" : "none";
     }
-    if (ui.fade) ui.fade.style.opacity = clamp((s - .955) / .045);
+    if (ui.fade) ui.fade.style.opacity = ease(clamp((s - .955) / .045));
     /* Der Abspann blendet ab .875 ein – der Knopf geht vorher aus, damit
        sich beides auf kleinen Displays nicht in die Quere kommt. */
     if (ui.skip) { ui.skip.style.opacity = s > .87 ? 0 : 1; ui.skip.style.pointerEvents = s > .87 ? "none" : ""; }
@@ -195,7 +197,7 @@ function start() {
     raf = 0;
     const dt = Math.min(.1, (now - last) / 1000); last = now;
     const d = target - cur;
-    cur = (Math.abs(d) < .0004 || still) ? target : cur + d * (1 - Math.exp(-dt * 9));
+    cur = (Math.abs(d) < .0004 || still) ? target : cur + d * (1 - Math.exp(-dt * 3.2));
     if (!inView() || document.hidden) { document.body.classList.remove("in-film"); return; }
     if (need) { lastS = -1; need = false; }
     paint(cur);

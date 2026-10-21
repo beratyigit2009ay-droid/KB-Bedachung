@@ -132,7 +132,7 @@ function renderHours(){
 }
 renderHours();setInterval(renderHours,60000);
 
-/* ---------- Termin-Formular: Anfrage als WhatsApp-Nachricht ---------- */
+/* ---------- Termin-Formular: Anfrage als E-Mail an Info@kb-bedachungen.de ---------- */
 const form=$("#bookForm");
 $("#f-date").min=new Date().toISOString().slice(0,10);
 form.addEventListener("submit",e=>{
@@ -149,7 +149,7 @@ form.addEventListener("submit",e=>{
   lines.push("Thema: "+$("#f-topic").value);
   if(d)lines.push("Wunschdatum: "+d.split("-").reverse().join("."));
   if(msg)lines.push("","Nachricht: "+msg);
-  window.open("https://wa.me/491621546717?text="+encodeURIComponent(lines.join("\n")),"_blank","noopener");
+  location.href="mailto:Info@kb-bedachungen.de?subject="+encodeURIComponent("Anfrage über die Website: "+$("#f-topic").value)+"&body="+encodeURIComponent(lines.join("\r\n"));
   modal.classList.add("open");document.body.classList.add("locked");$("#mClose").focus();
   form.reset();
 });
@@ -214,7 +214,7 @@ const FAQ=[
   ["Welche Dächer macht KB Bedachungen?","Wir sind auf Flachdächer spezialisiert, vor allem Foliendächer für Häuser, Terrassen, Balkone, Garagen und Carports."],
   ["Kommen Sie für eine Besichtigung vorbei?","Ja. Rufen Sie an oder schicken Sie eine Anfrage, dann vereinbaren wir einen Termin bei Ihnen vor Ort."],
   ["In welcher Region sind Sie tätig?","Wir sind in Ichenhausen und Umgebung für Sie unterwegs. Fragen Sie gerne nach, ob Ihr Ort dazugehört."],
-  ["Mein Flachdach ist undicht. Was tun?","Steigen Sie nicht selbst aufs Dach. Machen Sie wenn möglich Fotos von der betroffenen Stelle innen und rufen Sie uns an: 0162 1546717."],
+  ["Mein Flachdach ist undicht. Was tun?","Steigen Sie nicht selbst aufs Dach. Machen Sie wenn möglich Fotos von der betroffenen Stelle innen und rufen Sie uns an: +49 162 1546717."],
   ["Kann ich Fotos per WhatsApp schicken?","Ja, Fotos vom Dach, der Terrasse oder der Garage helfen uns bei einer ersten Einschätzung."],
   ["Wann sind Sie erreichbar?","Montag bis Freitag von 07:00 bis 18:00 Uhr. Samstag und Sonntag ist geschlossen."]
 ];
