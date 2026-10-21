@@ -574,11 +574,12 @@ footer{background:var(--bg-2);padding-block:70px 30px;border-top:1px solid var(-
   .rv-card{position:static;width:auto;transform:none!important}
 }
 
-/* ---------- Scroll-Intro (Film) ---------- */
+/* ---------- Scroll-Intro (Film, vorgerendert) ---------- */
 .film{position:relative;height:720vh;background:var(--bg)}
 .film-pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:radial-gradient(ellipse 80% 70% at 50% 45%,#fffdfa 0%,var(--bg) 70%)}
-#filmCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0}
-.film-veil{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(to top,rgba(247,244,240,.82) 0%,rgba(247,244,240,.42) 20%,rgba(247,244,240,0) 42%)}
+.film-stage{position:absolute;inset:0;opacity:0;pointer-events:none;will-change:opacity;contain:paint}
+#filmVideo{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;object-position:50% 50%;background:var(--bg);pointer-events:none}
+.film-veil{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(247,244,240,.82) 0%,rgba(247,244,240,.42) 20%,rgba(247,244,240,0) 42%)}
 .film-hint{position:absolute;left:50%;bottom:calc(34px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;font:600 .78rem var(--f-label);letter-spacing:.24em;text-transform:uppercase;color:var(--muted);z-index:4;margin:0}
 .film-hint i{width:1px;height:38px;background:linear-gradient(var(--copper),transparent);animation:hint 2.2s ease-in-out infinite;transform-origin:top}
 @keyframes hint{0%{transform:scaleY(0)}50%{transform:scaleY(1);opacity:1}100%{transform:scaleY(1);opacity:0}}
@@ -593,7 +594,44 @@ footer{background:var(--bg-2);padding-block:70px 30px;border-top:1px solid var(-
 .film-steps li::before{content:"0" counter(fs);font-size:.7rem;color:var(--copper);width:1.6em}
 .film-steps li.on{opacity:1;color:var(--fg)}
 .in-film .fab{opacity:0!important;pointer-events:none}
+
+/* Solange der Film lädt: nur Logo und Scroll-Hinweis, sonst nichts */
+.film-loading .film-stage{opacity:0!important}
+.film-loading .film-lines p,.film-loading .film-steps,.film-loading .film-end,.film-loading .film-fade{opacity:0!important}
+.film-loading #intro{opacity:1!important;transform:none!important;visibility:visible!important}
+
+/* Kein Film (reduzierte Bewegung, Fehler): Abschnitt klappt zusammen */
 .film-off{height:auto}
 .film-off .film-pin{display:none}
-@media (max-width:860px){.film{height:580vh}.film-steps{top:calc(18px + env(safe-area-inset-top,0px));transform:none;padding:12px 16px}.film-steps li{font-size:.68rem;padding:5px 0}.film-lines p{bottom:18vh}.film-end{bottom:14vh}}
-@media (max-width:620px){.film-skip{left:50%;right:auto;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px))}.film-hint{bottom:calc(78px + env(safe-area-inset-bottom,0px))}}
+
+@media (max-width:860px){
+  .film{height:580vh}
+  .film-steps{top:calc(18px + env(safe-area-inset-top,0px));transform:none;padding:12px 16px}
+  .film-steps li{font-size:.68rem;padding:5px 0}
+  .film-lines p{bottom:18vh}
+  .film-end{bottom:14vh}
+}
+@media (max-width:620px){
+  .film-skip{left:50%;right:auto;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+  .film-hint{bottom:calc(78px + env(safe-area-inset-bottom,0px))}
+}
+
+/* Hochformat (Handy): der quadratische Film steht als ruhiges Band in
+   voller Breite im oberen Bereich, Texte und Abspann hängen direkt an
+   seiner Unterkante auf hellem Grund – nichts liegt über dem Bild.
+   --band = Unterkante des Films. Bei fast quadratischen Fenstern
+   (Tablet quer/hoch) bleibt es beim formatfüllenden Zuschnitt. */
+@media (orientation:portrait) and (max-width:900px) and (max-aspect-ratio:16/25){
+  .film-pin{--band:calc(50% + 50vw - 7%)}
+  .film-stage{top:calc(50% - 50vw - 7%);bottom:auto;left:0;right:0;height:100vw}
+  .film-veil{background:linear-gradient(to top,rgba(247,244,240,.95) 0%,rgba(247,244,240,.35) 9%,rgba(247,244,240,0) 22%)}
+  .film-lines p{top:calc(var(--band) + 26px);bottom:auto}
+  .film-end{top:calc(var(--band) + 30px);bottom:auto}
+  .film-steps{top:calc(12px + env(safe-area-inset-top,0px))}
+}
+
+/* Reduzierte Bewegung: kein Film, auch ohne JavaScript */
+@media (prefers-reduced-motion:reduce){
+  .film{height:auto}
+  .film-pin{display:none}
+}
