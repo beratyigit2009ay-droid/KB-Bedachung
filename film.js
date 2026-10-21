@@ -1,11 +1,13 @@
 /* =========================================================
    KB Bedachungen – Scroll-Intro (film.js)
-   Spielt den vorgerenderten Film (Blender/Cycles, 200 Bilder, 24 fps)
-   ab: ein <video> wird nicht abgespielt, sondern vom Scrollen gescrubbt.
-   Die Datei wird als Blob geladen, damit das Springen zwischen Bildern
-   sofort geht – auch auf iOS und Android. Logo, Texte, Schritte,
-   Abspann und Weissblende hängen wie bisher direkt an der Scrollposition,
-   rückwärts läuft alles natürlich zurück.
+   Spielt den vorgerenderten Film (Blender/Cycles, 200 Bilder) als
+   Bildfolge auf einem <canvas> ab. Zwischen zwei Bildern wird weich
+   überblendet, so läuft der Film beim Scrollen stufenlos – ohne die
+   Sprünge, die ein gescrubbtes <video> macht.
+   Die Bilder kommen in wenigen Paketen, grob nach fein: nach dem ersten
+   Paket (jedes 8. Bild) läuft der Film schon, die übrigen füllen nach.
+   Logo, Texte, Schritte, Abspann und Weissblende hängen wie bisher an
+   der Scrollposition, rückwärts läuft alles natürlich zurück.
    ========================================================= */
 const film = document.getElementById("film");
 if (film) start();
@@ -13,25 +15,20 @@ if (film) start();
 function start() {
   const clamp = v => (v < 0 ? 0 : v > 1 ? 1 : v);
 
-  /* ---------- Zeitachse: Bild 1..200 deckt s = 0.04 .. 1.00 ab ---------- */
-  const N = 200, FPS = 24, S0 = 0.04, S1 = 1.0;
-  const frameAt = s => {
-    const f = Math.round(1 + clamp((s - S0) / (S1 - S0)) * (N - 1));
-    return f < 1 ? 1 : f > N ? N : f;
-  };
-  /* Mitte des Bildes anspringen, damit immer genau dieses Bild steht */
-  const timeAt = f => (f - 0.5) / FPS;
+  /* ---------- Zeitachse: Bild 1..N deckt s = 0.04 .. 1.00 ab ---------- */
+  const S0 = 0.04, S1 = 1.0;
+  let N = 200;
+  const posAt = s => 1 + clamp((s - S0) / (S1 - S0)) * (N - 1); /* Bild als Kommazahl */
 
   /* ---------- Quellen: quer = 16:9, Hochformat = quadratisch ---------- */
-  const SRC = {
-    wide: { v: "assets/film/film-1280.mp4", p: "assets/film/poster-1280.jpg" },
-    sq:   { v: "assets/film/film-sq.mp4",   p: "assets/film/poster-sq.jpg" }
-  };
+  const BASE = "assets/film/";
+  const SRC = { wide: { m: "w.json", w: 1280, h: 720 }, sq: { m: "s.json", w: 720, h: 720 } };
   const pick = () => (innerHeight > innerWidth && innerWidth <= 900 ? "sq" : "wide");
 
-  const stage = document.getElementById("filmStage");
-  const video = document.getElementById("filmVideo");
-  const skip  = document.getElementById("filmSkip");
+  const stage  = document.getElementById("filmStage");
+  const canvas = document.getElementById("filmCanvas");
+  const skip   = document.getElementById("filmSkip");
+  const ctx = canvas && canvas.getContext ? canvas.getContext("2d", { alpha: false }) : null;
 
   const off = () => {
     film.classList.remove("film-loading", "film-ready");
@@ -39,96 +36,124 @@ function start() {
     document.body.classList.remove("in-film");
   };
 
-  /* Reduzierte Bewegung oder kein Video möglich: Film einklappen.
-     Ob der Browser das MP4 wirklich kann, zeigt sich beim Laden –
-     scheitert es, greift derselbe Notausgang (siehe bail()). */
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduce || !stage || !video || typeof video.canPlayType !== "function") { off(); return; }
+  if (reduce || !stage || !ctx || typeof Blob === "undefined") { off(); return; }
 
   /* Überspringen: direkt zur Seite, ohne den Film im Schnelldurchlauf */
   if (skip) skip.addEventListener("click", () => scrollTo({ top: film.offsetTop + film.offsetHeight, behavior: "instant" }));
 
-  /* Ton und Vollbild sind hier nie erwünscht – auch als Eigenschaft setzen,
-     sonst spielt iOS das Video nicht stumm und verweigert das Scrubben. */
-  video.muted = true; video.defaultMuted = true; video.playsInline = true;
-  video.loop = false; video.controls = false; video.autoplay = false;
+  /* ---------- Bilder laden ---------- */
+  let variant = null, ready = false, gen = 0, gotBytes = false;
+  let blobs = [];          /* blobs[f] = WebP-Daten von Bild f (1..N) */
+  const cache = new Map(); /* entpackte Bilder rund um die aktuelle Stelle */
+  const pending = new Set();
+  const MAXC = 18;
 
-  /* ---------- Film laden ---------- */
-  let variant = null, objUrl = null, ready = false, swapping = false;
+  const bitmapOK = typeof createImageBitmap === "function";
+  function decode(blob) {
+    if (bitmapOK) return createImageBitmap(blob);
+    return new Promise((res, rej) => {
+      const img = new Image(), u = URL.createObjectURL(blob);
+      img.onload = () => { URL.revokeObjectURL(u); res(img); };
+      img.onerror = () => { URL.revokeObjectURL(u); rej(new Error("bild")); };
+      img.src = u;
+    });
+  }
+  const drop = bm => { if (bm && bm.close) try { bm.close(); } catch (e) {} };
 
-  /* Ganze Datei holen, damit sie lokal liegt und das Springen sofort geht.
-     Klappt das nicht, wird notfalls direkt von der URL gestreamt. */
-  let gotBytes = false;
-  async function grab(kind) {
-    try {
-      const res = await fetch(SRC[kind].v, { cache: "force-cache", credentials: "same-origin" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      gotBytes = true;
-      const blob = await res.blob();
-      if (!blob || blob.size < 1024) throw new Error("leer");
-      return { url: URL.createObjectURL(blob), blob: true };
-    } catch (e) {
-      return { url: SRC[kind].v, blob: false };
+  async function load(kind) {
+    const my = ++gen;
+    const res = await fetch(BASE + SRC[kind].m, { cache: "force-cache" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const man = await res.json();
+    if (my !== gen) return;
+    gotBytes = true;
+    variant = kind; N = man.n;
+    blobs = new Array(N + 1);
+    for (const bm of cache.values()) drop(bm);
+    cache.clear(); pending.clear();
+    canvas.width = SRC[kind].w; canvas.height = SRC[kind].h;
+    drawn = -1;
+    for (let i = 0; i < man.packs.length; i++) {
+      const p = man.packs[i];
+      const r = await fetch(BASE + p.file, { cache: "force-cache" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const buf = await r.blob();
+      if (my !== gen) return;
+      for (const [f, o, l] of p.frames) blobs[f] = buf.slice(o, o + l, "image/webp");
+      if (i === 0) {
+        /* erstes und letztes Bild sofort bereithalten */
+        await want(Math.round(posAt(cur)));
+        if (my !== gen) return;
+        onFirst();
+      }
+      prefetch(); kick();
     }
   }
 
-  function attach(kind, src, keep) {
-    return new Promise((res, rej) => {
-      const done = () => { clean(); res(); };
-      const bad  = () => { clean(); rej(new Error("video")); };
-      const clean = () => {
-        video.removeEventListener("loadeddata", done);
-        video.removeEventListener("error", bad);
-        clearTimeout(t);
-      };
-      const t = setTimeout(bad, 30000);
-      video.addEventListener("loadeddata", done);
-      video.addEventListener("error", bad);
-      video.poster = SRC[kind].p;
-      video.src = src.url;
-      video.load();
-    }).then(() => {
-      const old = objUrl;
-      objUrl = src.blob ? src.url : null;
-      if (old && old !== src.url) URL.revokeObjectURL(old);
-      variant = kind;
-      shown = 0; want = -1;
-      if (keep != null) { try { video.currentTime = keep; } catch (e) {} }
-    });
+  /* Bild f entpacken (falls nötig) und im Zwischenspeicher halten */
+  function want(f) {
+    if (!blobs[f] || cache.has(f) || pending.has(f)) return Promise.resolve();
+    pending.add(f);
+    const my = gen;
+    return decode(blobs[f]).then(bm => {
+      pending.delete(f);
+      if (my !== gen) { drop(bm); return; }
+      cache.set(f, bm);
+      trim();
+      drawn = -1; kick();
+    }).catch(() => pending.delete(f));
+  }
+  /* Nur die Bilder rund um die aktuelle Stelle behalten (Speicher) */
+  function trim() {
+    if (cache.size <= MAXC) return;
+    const c = posAt(cur);
+    const far = [...cache.keys()].sort((a, b) => Math.abs(b - c) - Math.abs(a - c));
+    while (cache.size > MAXC) { const f = far.shift(); drop(cache.get(f)); cache.delete(f); }
+  }
+  /* Vorausladen in Scrollrichtung, ein paar Bilder auch zurück */
+  let dir = 1;
+  function prefetch() {
+    if (!blobs.length) return;
+    const c = Math.round(posAt(cur));
+    for (let k = 0; k <= 7; k++) {
+      const f = c + dir * k;
+      if (f >= 1 && f <= N) want(f);
+    }
+    for (let k = 1; k <= 3; k++) {
+      const f = c - dir * k;
+      if (f >= 1 && f <= N) want(f);
+    }
   }
 
-  const load = kind => grab(kind).then(src => attach(kind, src, null));
+  /* nächstes entpacktes Bild unter-/oberhalb einer Stelle */
+  function near(f, step) {
+    for (let g = f; g >= 1 && g <= N; g += step) if (cache.has(g)) return g;
+    return 0;
+  }
 
-  /* ---------- Bildweise springen, ohne das Video zu überfahren ---------- */
-  let shown = 0, want = -1;
-  function show(f) {
-    if (!ready || f === shown) return;
-    if (video.seeking) { want = f; return; }
-    want = -1; shown = f;
-    try { video.currentTime = timeAt(f); } catch (e) {}
+  /* ---------- Zeichnen: zwei Nachbarbilder weich überblendet ---------- */
+  let drawn = -1;
+  function draw(pos) {
+    if (!ready) return;
+    const a = Math.floor(pos);
+    let la = near(a, -1), lb = near(a + 1, 1);
+    if (!la && !lb) return;
+    if (!la) la = lb;
+    if (!lb) lb = la;
+    const t = lb === la ? 0 : (pos - la) / (lb - la);
+    const key = la * 1e4 + lb + Math.round(t * 255) / 256;
+    if (key === drawn) return;
+    drawn = key;
+    const W = canvas.width, H = canvas.height;
+    ctx.globalAlpha = 1;
+    ctx.drawImage(cache.get(la), 0, 0, W, H);
+    if (lb !== la && t > 0.004) {
+      ctx.globalAlpha = t;
+      ctx.drawImage(cache.get(lb), 0, 0, W, H);
+      ctx.globalAlpha = 1;
+    }
   }
-  function flush() {
-    if (want < 0) return;
-    const f = want; want = -1;
-    if (f !== shown) { shown = f; try { video.currentTime = timeAt(f); } catch (e) {} }
-  }
-  video.addEventListener("seeked", () => { flush(); kick(); });
-
-  /* iOS zeigt bei einem nie gestarteten Video oft kein Bild: einmal kurz
-     starten und sofort anhalten, solange der Film noch unsichtbar ist. */
-  let unlocked = false, tries = 0;
-  function unlock() {
-    if (unlocked || tries > 3 || !video.src) return;
-    tries++;
-    try {
-      const p = video.play();
-      if (p && p.then) p.then(() => { unlocked = true; video.pause(); flushBack(); }).catch(() => {});
-      else { unlocked = true; video.pause(); flushBack(); }
-    } catch (e) {}
-  }
-  const flushBack = () => { shown = 0; need = true; kick(); };
-  addEventListener("pointerdown", unlock, { passive: true });
-  addEventListener("touchstart", unlock, { passive: true });
 
   /* ---------- Texte und Überblendungen (wie im alten Player) ---------- */
   const ui = {
@@ -179,11 +204,12 @@ function start() {
     if (ui.skip) { ui.skip.style.opacity = s > .87 ? 0 : 1; ui.skip.style.pointerEvents = s > .87 ? "none" : ""; }
   }
 
+
   let lastS = -1;
   function paint(s) {
+    if (ready) draw(posAt(s));
     if (s === lastS) return;
     lastS = s;
-    if (ready) show(frameAt(s));
     paintUI(s);
   }
 
@@ -197,12 +223,13 @@ function start() {
     raf = 0;
     const dt = Math.min(.1, (now - last) / 1000); last = now;
     const d = target - cur;
-    cur = (Math.abs(d) < .0004 || still) ? target : cur + d * (1 - Math.exp(-dt * 3.2));
+    if (Math.abs(d) > 1e-5) dir = d > 0 ? 1 : -1;
+    cur = (Math.abs(d) < .0002 || still) ? target : cur + d * (1 - Math.exp(-dt * 4));
     if (!inView() || document.hidden) { document.body.classList.remove("in-film"); return; }
-    if (need) { lastS = -1; need = false; }
+    if (need) { lastS = -1; drawn = -1; need = false; }
     paint(cur);
-    if (!video.seeking) flush();
-    if (Math.abs(target - cur) > .0002 || want >= 0 || video.seeking) raf = requestAnimationFrame(tick);
+    prefetch();
+    if (Math.abs(target - cur) > .0001 || pending.size) raf = requestAnimationFrame(tick);
   }
   function kick() {
     target = progress();
@@ -217,12 +244,8 @@ function start() {
   let rzT = 0;
   function swap() {
     const k = pick();
-    if (!ready || swapping || k === variant) return;
-    swapping = true;
-    const keep = video.currentTime;
-    grab(k).then(src => attach(k, src, keep)).then(() => {
-      swapping = false; need = true; shown = 0; kick();
-    }).catch(() => { swapping = false; });
+    if (!ready || k === variant) return;
+    load(k).catch(() => {});
   }
   addEventListener("scroll", kick, { passive: true });
   addEventListener("resize", () => { need = true; kick(); clearTimeout(rzT); rzT = setTimeout(swap, 500); });
@@ -231,8 +254,6 @@ function start() {
 
   /* ---------- Start: Logo steht, im Hintergrund lädt der Film ---------- */
   film.classList.add("film-loading");
-  /* Standbild schon jetzt setzen, damit beim Einhängen des Films nichts aufblitzt */
-  video.poster = SRC[pick()].p;
   cur = target = progress();
   paintUI(cur);
   kick();
@@ -243,27 +264,27 @@ function start() {
   const watch = setInterval(() => {
     if (ready) { clearInterval(watch); return; }
     waited += 1000;
-    /* Nur abbrechen, wenn wirklich nichts ankommt. Läuft die Leitung nur
-       langsam, bleibt das Logo stehen und der Film kommt nach. */
-    if (waited >= 20000 && !gotBytes && video.readyState === 0) { clearInterval(watch); bail(); }
+    if (waited >= 20000 && !gotBytes) { clearInterval(watch); bail(); }
   }, 1000);
 
   function bail() {
-    if (film.classList.contains("film-off")) return;
+    if (film.classList.contains("film-off") || ready) return;
     const r = film.getBoundingClientRect();
     const inside = r.top <= 0 && r.bottom > innerHeight * .5;
     off();
     if (inside) scrollTo({ top: film.offsetTop + film.offsetHeight, behavior: "instant" });
   }
 
-  load(pick()).then(() => {
+  function onFirst() {
+    if (ready) { need = true; kick(); return; }
     clearInterval(watch);
     ready = true;
     film.classList.remove("film-loading");
     film.classList.add("film-ready");
-    unlock();
-    shown = 0; want = -1; need = true; lastS = -1;
+    need = true; lastS = -1;
     paint(cur);
     kick();
-  }).catch(() => { clearInterval(watch); bail(); });
+  }
+
+  load(pick()).catch(() => { clearInterval(watch); bail(); });
 }
