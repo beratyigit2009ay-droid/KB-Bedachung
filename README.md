@@ -5,11 +5,11 @@ Website für KB Bedachungen, Dachdecker in Ichenhausen. Statische Single-Page au
 ## Dateien
 - `index.html` – Seite mit allen Abschnitten (Hero, Referenzen, Bewertungen, Über uns, Leistungen, Öffnungszeiten, Termin, FAQ, Footer, Impressum, Datenschutz)
 - `styles.css` – Design und Animationen
-- `film.js` – Scroll-Intro: spielt den vorgerenderten Film (Blender Cycles) beim Scrollen ab. Gezeigt wird ein modernes Gebäude am Ortsrand im Abendlicht, auf dem Flachdach, Garagen-Foliendach und Dachterrasse fachgerecht entstehen.
+- `film.js` – Scroll-Intro: spielt den vorgerenderten Film (Blender Cycles) beim Scrollen als Bildfolge auf einem Canvas ab, mit weicher Überblendung zwischen den Bildern. Gezeigt wird ein modernes Gebäude am Ortsrand im Abendlicht, auf dem Flachdach, Garagen-Foliendach und Dachterrasse fachgerecht entstehen.
 - `script.js` – Logo im Intro, Scroll-Effekte, Öffnungszeiten-Status, Formular (öffnet eine vorbereitete E-Mail an Info@kb-bedachungen.de), FAQ, SVG-Illustrationen
 - `assets/logo.svg` – Logo als SVG
 - `assets/img/` – Projektfotos
-- `assets/film/` – der Film als MP4: `film-1280.mp4` für Desktop und Querformat, `film-sq.mp4` (quadratischer Ausschnitt) für Handys im Hochformat, dazu Vorschaubilder
+- `assets/film/` – der Film als 200 WebP-Bilder in je vier Paketen (grob nach fein): `w-*.bin` und `w.json` für Desktop und Querformat (1280×720), `s-*.bin` und `s.json` (quadratischer Ausschnitt, 720×720) für Handys im Hochformat
 - `assets/fonts/` – Schriften lokal (keine Verbindung zu Google Fonts, DSGVO)
 - `ki-bild-prompts.md` – 6 Prompts für KI-Bilder
 
