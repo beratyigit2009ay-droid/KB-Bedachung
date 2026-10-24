@@ -1,6 +1,6 @@
 /* =========================================================
    KB Bedachungen – Scroll-Intro (film.js)
-   Spielt den vorgerenderten Film (Blender/Cycles, 200 Bilder) als
+   Spielt den vorgerenderten Film (Blender/Cycles, 399 Bilder) als
    Bildfolge auf einem <canvas> ab. Zwischen zwei Bildern wird weich
    überblendet, so läuft der Film beim Scrollen stufenlos – ohne die
    Sprünge, die ein gescrubbtes <video> macht.
@@ -17,7 +17,7 @@ function start() {
 
   /* ---------- Zeitachse: Bild 1..N deckt s = 0.04 .. 1.00 ab ---------- */
   const S0 = 0.04, S1 = 1.0;
-  let N = 200;
+  let N = 399;
   const posAt = s => 1 + clamp((s - S0) / (S1 - S0)) * (N - 1); /* Bild als Kommazahl */
 
   /* ---------- Quellen: quer = 16:9, Hochformat = quadratisch ---------- */
@@ -47,7 +47,7 @@ function start() {
   let blobs = [];          /* blobs[f] = WebP-Daten von Bild f (1..N) */
   const cache = new Map(); /* entpackte Bilder rund um die aktuelle Stelle */
   const pending = new Set();
-  const MAXC = 18;
+  const MAXC = 28;
 
   const bitmapOK = typeof createImageBitmap === "function";
   function decode(blob) {
@@ -116,11 +116,11 @@ function start() {
   function prefetch() {
     if (!blobs.length) return;
     const c = Math.round(posAt(cur));
-    for (let k = 0; k <= 7; k++) {
+    for (let k = 0; k <= 12; k++) {
       const f = c + dir * k;
       if (f >= 1 && f <= N) want(f);
     }
-    for (let k = 1; k <= 3; k++) {
+    for (let k = 1; k <= 4; k++) {
       const f = c - dir * k;
       if (f >= 1 && f <= N) want(f);
     }
@@ -141,6 +141,9 @@ function start() {
     if (!la && !lb) return;
     if (!la) la = lb;
     if (!lb) lb = la;
+    /* Nur direkte Nachbarn überblenden. Fehlt ein Bild dazwischen (lädt
+       noch), steht das nähere scharf da – sonst gäbe es Doppelbilder. */
+    if (lb - la > 1) { if (pos - la < lb - pos) lb = la; else la = lb; }
     const t = lb === la ? 0 : (pos - la) / (lb - la);
     const key = la * 1e4 + lb + Math.round(t * 255) / 256;
     if (key === drawn) return;
