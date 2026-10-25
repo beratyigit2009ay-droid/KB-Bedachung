@@ -204,7 +204,9 @@ const REVIEWS=[
   stage.addEventListener("keydown",e=>{if(e.key==="ArrowRight")pick(Math.round(target)+1);if(e.key==="ArrowLeft")pick(Math.round(target)-1)});
   /* Einflug: Bühne kippt beim Hereinscrollen aus der Schräge in die Ebene */
   const tilt=()=>{if(reduce)return;const r=stage.getBoundingClientRect(),k=Math.max(0,Math.min(1,(innerHeight-r.top)/(innerHeight*.55)));track.style.transform=`rotateX(${((1-k)*(calm()?10:18)).toFixed(2)}deg) translateY(${((1-k)*40).toFixed(1)}px)`};
-  addEventListener("scroll",()=>requestAnimationFrame(()=>{fromScroll();tilt()}),{passive:true});
+  let near=true,rt=0;
+  if("IntersectionObserver" in window)new IntersectionObserver(es=>{near=es[0].isIntersecting;if(near){fromScroll();tilt()}},{rootMargin:"50% 0px"}).observe(stage);
+  addEventListener("scroll",()=>{if(near&&!rt)rt=requestAnimationFrame(()=>{rt=0;fromScroll();tilt()})},{passive:true});
   addEventListener("resize",()=>{paint();tilt()});
   paint();fromScroll();tilt();
 })();
@@ -234,26 +236,45 @@ $$("[data-reveal]").forEach(el=>io?io.observe(el):el.classList.add("in"));
 let ticking=false;
 const prog=$("#progress"),fab=$("#fab"),layers=$$("#heroArt .layer"),bgLayers=$$(".hero-bg .lines");
 const navLinks=$$("#menu a"),secs=navLinks.map(a=>$(a.getAttribute("href")));
+/* Lagen nur bei Größenänderung messen; beim Scrollen reicht scrollY */
+let tops=[],heroTop=0,maxY=1,vh=innerHeight;
+function measure(){
+  const y=scrollY;vh=innerHeight;
+  tops=secs.map(s=>s?s.getBoundingClientRect().top+y:Infinity);
+  heroTop=hero.getBoundingClientRect().top+y;
+  maxY=Math.max(1,document.documentElement.scrollHeight-vh);
+}
+const st={};const flag=(el,c,on)=>{if(st[c]!==on){st[c]=on;el.classList.toggle(c,on)}};
+let lastNav=-2,lastPar=null;
 function onScroll(){
-  const y=scrollY,max=document.documentElement.scrollHeight-innerHeight;
-  prog.style.transform=`scaleX(${max>0?y/max:0})`;
-  header.classList.toggle("scrolled",y>20);
-  fab.classList.toggle("show",y>innerHeight*.6);
-  if(!reduce&&!calm()&&y<innerHeight*1.5){
-    layers.forEach(l=>l.style.transform=`translate3d(0,${y*+l.dataset.depth}px,0)`);
-    bgLayers.forEach(l=>l.style.transform=`translate3d(0,${y*+l.dataset.depth}px,0)`);
-  }
-  let cur=-1;secs.forEach((s,i)=>{if(s&&s.getBoundingClientRect().top<innerHeight*.4)cur=i});navLinks.forEach((a,i)=>a.classList.toggle("active",i===cur));
   ticking=false;
+  const y=scrollY;
+  prog.style.transform=`scaleX(${(Math.min(1,y/maxY)).toFixed(4)})`;
+  flag(header,"scrolled",y>20);
+  flag(fab,"show",y>vh*.6);
+  /* Parallax nur, solange der Hero im Bild ist */
+  const hy=y-heroTop;
+  if(!reduce&&!calm()&&hy>-vh&&hy<vh*1.5){
+    const k=Math.max(0,hy);
+    if(k!==lastPar){lastPar=k;
+      layers.forEach(l=>l.style.transform=`translate3d(0,${(k*+l.dataset.depth).toFixed(1)}px,0)`);
+      bgLayers.forEach(l=>l.style.transform=`translate3d(0,${(k*+l.dataset.depth).toFixed(1)}px,0)`);}
+  }
+  let cur=-1;for(let i=0;i<tops.length;i++)if(tops[i]-y<vh*.4)cur=i;
+  if(cur!==lastNav){lastNav=cur;navLinks.forEach((a,i)=>a.classList.toggle("active",i===cur))}
 }
 addEventListener("scroll",()=>{if(!ticking){ticking=true;requestAnimationFrame(onScroll)}},{passive:true});
-onScroll();
+addEventListener("resize",()=>{measure();onScroll()});
+if("ResizeObserver" in window)new ResizeObserver(()=>{measure();onScroll()}).observe(document.body);
+addEventListener("load",()=>{measure();onScroll()});
+measure();onScroll();
 
 /* Maus-Parallax im Hero */
 if(!reduce&&matchMedia("(hover:hover)").matches){
-  hero.addEventListener("mousemove",e=>{const dx=e.clientX/innerWidth-.5,dy=e.clientY/innerHeight-.5;
-    layers.forEach(l=>{const k=+l.dataset.depth*120;l.style.translate=`${-dx*k}px ${-dy*k*.5}px`});
-    bgLayers.forEach(l=>{const k=+l.dataset.depth*80;l.style.translate=`${dx*k}px ${dy*k}px`})});
+  let mx=0,my=0,mr=0;
+  hero.addEventListener("mousemove",e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;if(!mr)mr=requestAnimationFrame(()=>{mr=0;
+    layers.forEach(l=>{const k=+l.dataset.depth*120;l.style.translate=`${(-mx*k).toFixed(1)}px ${(-my*k*.5).toFixed(1)}px`});
+    bgLayers.forEach(l=>{const k=+l.dataset.depth*80;l.style.translate=`${(mx*k).toFixed(1)}px ${(my*k).toFixed(1)}px`})})},{passive:true});
 }
 
 })();
