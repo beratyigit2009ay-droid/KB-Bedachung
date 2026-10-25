@@ -175,36 +175,46 @@ function start() {
   const ease = x => x * x * (3 - 2 * x);
   const win01 = (s, a, b, f = .045) => ease(Math.min(clamp((s - a) / f), clamp((b - s) / f)));
 
+  /* Stilwerte nur schreiben, wenn sie sich wirklich ändern – spart
+     Stil-Neuberechnungen in jedem Bild */
+  const css = (el, k, v) => {
+    const c = el._fc || (el._fc = {});
+    if (c[k] !== v) { c[k] = v; el.style[k] = v; }
+  };
+  const r3 = v => Math.round(v * 1000) / 1000;
+  let inFilm = null;
+  const setInFilm = on => { if (on !== inFilm) { inFilm = on; document.body.classList.toggle("in-film", on); } };
+
   function paintUI(s) {
-    document.body.classList.toggle("in-film", s < .985 && inView());
+    setInFilm(s < .985 && inView());
     if (!ready) return; /* solange geladen wird, steht nur das Logo (siehe .film-loading) */
     const lo = clamp((s - .035) / .07);
     if (ui.logo) {
-      ui.logo.style.opacity = 1 - lo;
-      ui.logo.style.transform = `translateY(${-40 * lo}px) scale(${1 - .05 * lo})`;
-      ui.logo.style.visibility = lo >= 1 ? "hidden" : "";
+      css(ui.logo, "opacity", String(r3(1 - lo)));
+      css(ui.logo, "transform", `translateY(${(-40 * lo).toFixed(1)}px) scale(${r3(1 - .05 * lo)})`);
+      css(ui.logo, "visibility", lo >= 1 ? "hidden" : "");
     }
-    if (ui.hint) ui.hint.style.opacity = 1 - clamp(s / .03);
-    stage.style.opacity = ease(clamp((s - .02) / .09));
+    if (ui.hint) css(ui.hint, "opacity", String(r3(1 - clamp(s / .03))));
+    css(stage, "opacity", String(r3(ease(clamp((s - .02) / .09)))));
     for (const l of ui.lines) {
       const o = win01(s, l.a, l.b);
-      l.el.style.opacity = o;
-      l.el.style.transform = `translateY(${(1 - o) * (s < (l.a + l.b) / 2 ? 14 : -14)}px)`;
+      css(l.el, "opacity", String(r3(o)));
+      css(l.el, "transform", `translateY(${((1 - o) * (s < (l.a + l.b) / 2 ? 14 : -14)).toFixed(1)}px)`);
     }
     for (const g of ui.steps) {
-      g.el.style.opacity = win01(s, g.a, g.b, .02);
-      for (const l of g.li) l.el.classList.toggle("on", s >= l.t);
+      css(g.el, "opacity", String(r3(win01(s, g.a, g.b, .02))));
+      for (const l of g.li) { const on = s >= l.t; if (l.on !== on) { l.on = on; l.el.classList.toggle("on", on); } }
     }
     if (ui.end) {
       const eo = ease(clamp((s - .875) / .05));
-      ui.end.style.opacity = eo;
-      ui.end.style.transform = `translateY(${(1 - eo) * 14}px)`;
-      ui.end.style.pointerEvents = eo > .5 ? "auto" : "none";
+      css(ui.end, "opacity", String(r3(eo)));
+      css(ui.end, "transform", `translateY(${((1 - eo) * 14).toFixed(1)}px)`);
+      css(ui.end, "pointerEvents", eo > .5 ? "auto" : "none");
     }
-    if (ui.fade) ui.fade.style.opacity = ease(clamp((s - .955) / .045));
+    if (ui.fade) css(ui.fade, "opacity", String(r3(ease(clamp((s - .955) / .045)))));
     /* Der Abspann blendet ab .875 ein – der Knopf geht vorher aus, damit
        sich beides auf kleinen Displays nicht in die Quere kommt. */
-    if (ui.skip) { ui.skip.style.opacity = s > .87 ? 0 : 1; ui.skip.style.pointerEvents = s > .87 ? "none" : ""; }
+    if (ui.skip) { css(ui.skip, "opacity", s > .87 ? "0" : "1"); css(ui.skip, "pointerEvents", s > .87 ? "none" : ""); }
   }
 
 
@@ -219,8 +229,14 @@ function start() {
   /* ---------- Scroll-Kopplung mit weichem Nachlauf ---------- */
   const still = /filmshot/.test(location.search); /* nur für Testbilder */
   let target = 0, cur = 0, raf = 0, need = true, last = performance.now();
-  const progress = () => { const r = film.getBoundingClientRect(), span = r.height - innerHeight; return span > 0 ? clamp(-r.top / span) : 0; };
-  const inView = () => { const r = film.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; };
+  /* Lage des Abschnitts nur bei Größenänderung messen. Beim Scrollen
+     reicht scrollY – so muss der Browser nie mitten im Bild das Layout
+     neu berechnen. */
+  let fTop = 0, fH = 1;
+  const measure = () => { const r = film.getBoundingClientRect(); fTop = r.top + scrollY; fH = r.height; };
+  const progress = () => { const span = fH - innerHeight; return span > 0 ? clamp((scrollY - fTop) / span) : 0; };
+  const inView = () => { const y = scrollY; return y + innerHeight > fTop && y < fTop + fH; };
+  if ("ResizeObserver" in window) new ResizeObserver(() => { measure(); kick(); }).observe(document.body);
 
   function tick(now) {
     raf = 0;
@@ -228,7 +244,7 @@ function start() {
     const d = target - cur;
     if (Math.abs(d) > 1e-5) dir = d > 0 ? 1 : -1;
     cur = (Math.abs(d) < .0002 || still) ? target : cur + d * (1 - Math.exp(-dt * 4));
-    if (!inView() || document.hidden) { document.body.classList.remove("in-film"); return; }
+    if (!inView() || document.hidden) { setInFilm(false); return; }
     if (need) { lastS = -1; drawn = -1; need = false; }
     paint(cur);
     prefetch();
@@ -239,7 +255,7 @@ function start() {
     const vis = inView();
     /* Springt man genau an den Rand des Abschnitts, läuft keine Schleife
        mehr – die Seite muss trotzdem wieder normal werden. */
-    if (!vis) document.body.classList.remove("in-film");
+    if (!vis) setInFilm(false);
     if (!raf && vis && !document.hidden) { last = performance.now(); raf = requestAnimationFrame(tick); }
   }
 
@@ -251,12 +267,13 @@ function start() {
     load(k).catch(() => {});
   }
   addEventListener("scroll", kick, { passive: true });
-  addEventListener("resize", () => { need = true; kick(); clearTimeout(rzT); rzT = setTimeout(swap, 500); });
+  addEventListener("resize", () => { measure(); need = true; kick(); clearTimeout(rzT); rzT = setTimeout(swap, 500); });
   addEventListener("orientationchange", () => { need = true; clearTimeout(rzT); rzT = setTimeout(swap, 500); });
   document.addEventListener("visibilitychange", kick);
 
   /* ---------- Start: Logo steht, im Hintergrund lädt der Film ---------- */
   film.classList.add("film-loading");
+  measure();
   cur = target = progress();
   paintUI(cur);
   kick();
