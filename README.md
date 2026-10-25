@@ -9,7 +9,7 @@ Website für KB Bedachungen, Dachdecker in Ichenhausen. Statische Single-Page au
 - `script.js` – Logo im Intro, Scroll-Effekte, Öffnungszeiten-Status, Formular (öffnet eine vorbereitete E-Mail an Info@kb-bedachungen.de), FAQ, SVG-Illustrationen
 - `assets/logo.svg` – Logo als SVG
 - `assets/img/` – Projektfotos
-- `assets/film/` – der Film als 200 WebP-Bilder in je vier Paketen (grob nach fein): `w-*.bin` und `w.json` für Desktop und Querformat (1280×720), `s-*.bin` und `s.json` (quadratischer Ausschnitt, 720×720) für Handys im Hochformat
+- `assets/film/` – der Film als 399 WebP-Bilder in je vier Paketen (grob nach fein): `w-*.bin` und `w.json` für Desktop und Querformat (1280×720), `s-*.bin` und `s.json` (quadratischer Ausschnitt, 720×720) für Handys im Hochformat
 - `assets/fonts/` – Schriften lokal (keine Verbindung zu Google Fonts, DSGVO)
 - `ki-bild-prompts.md` – 6 Prompts für KI-Bilder
 
