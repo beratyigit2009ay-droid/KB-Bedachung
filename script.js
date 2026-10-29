@@ -98,7 +98,10 @@ const REFS=[
   ["neubau-flachdach","Neubau mitten im Baugebiet","Neubau","Bitumenabdichtung auf einem Neubau, die Kräne noch nebenan.","Neubau-Flachdach mit Bitumenbahnen und Baukränen"],
   ["kiesdach-lichtkuppel","Kiesdach mit Lichtkuppel","Flachdach","Kiesschüttung, Lichtkuppel und dichte Anschlüsse am Mauerwerk.","Flachdach mit Kies, Lichtkuppel und Kupferattika"],
   ["gewerbedach","Gewerbedach mit Lichtkuppeln","Gewerbe","Große Dachfläche mit mehreren Lichtkuppeln und Abläufen.","Gewerbliches Flachdach mit Lichtkuppeln"],
-  ["anschluss-fassade","Anschluss an die Fassade","Flachdach","Beschieferte Bahn, sauber an die Metallwand angeschlossen.","Flachdach mit roter Schieferbahn an einer Metallfassade"]
+  ["anschluss-fassade","Anschluss an die Fassade","Flachdach","Beschieferte Bahn, sauber an die Metallwand angeschlossen.","Flachdach mit roter Schieferbahn an einer Metallfassade"],
+  ["hauptdach-elchingen","Hauptdach in Elchingen","Flachdach","Dampfsperre, 30 cm Dämmung und helle Dachfolie auf dem Hauptdach.","Großes Flachdach mit heller Dachfolie und Gerüst unter Abendhimmel"],
+  ["bitumen-wohngebiet","Sicher abgedichtet mit Bitumenbahnen","Flachdach","Neue Bitumenabdichtung auf einem Flachdach im Wohngebiet.","Frisch abgedichtetes Flachdach mit Bitumenbahnen zwischen Wohnhäusern"],
+  ["rohbau-winter","Flachdach im Rohbau","Neubau","Bitumenabdichtung mit sauber gekanteten Rändern, mitten im Winter.","Neubau-Flachdach mit Bitumenbahnen im Schnee"]
 ];
 $("#stage").innerHTML=REFS.map((r,i)=>`<figure class="g-item g${i+1}" data-reveal style="--d:${(i%4)*.06}s"><button type="button" class="pc" data-i="${i}" aria-label="${r[1]} vergrößern"><img src="assets/img/${r[0]}.jpg" alt="${r[4]}" loading="lazy" decoding="async"></button><figcaption><span>${r[2]}</span>${r[1]}</figcaption></figure>`).join("");
 
