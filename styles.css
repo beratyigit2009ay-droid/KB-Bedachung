@@ -578,6 +578,27 @@ footer{background:var(--bg-2);padding-block:70px 30px;border-top:1px solid var(-
   header.top{background:rgba(247,244,240,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 }
 
+/* ---------- Instagram-Beiträge (Zwei-Klick-Lösung) ---------- */
+.ig-block{margin-top:clamp(48px,6vw,80px);padding-top:clamp(36px,4vw,52px);border-top:1px solid var(--line)}
+.ig-head{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+.ig-head h3{font:700 clamp(1.3rem,2.2vw,1.6rem)/1.2 var(--f-display);margin:0 0 4px}
+.ig-head p{margin:0;color:var(--muted)}
+.ig-ico{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;flex:none;color:#fff;background:linear-gradient(45deg,#f9a63a,#e1306c 45%,#833ab4)}
+.ig-ico svg{width:24px;height:24px}
+.ig-grid{display:none;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start}
+.ig-on .ig-grid{display:grid}
+.ig-post .instagram-media{margin:0!important;min-width:0!important;max-width:100%!important;width:100%!important}
+.ig-consent{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px 28px;padding:22px 26px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px -22px rgba(60,40,20,.35)}
+.ig-consent p{margin:0;color:var(--muted);font-size:.95rem;max-width:44em}
+.ig-link{background:none;border:0;padding:0;font:inherit;color:var(--copper);text-decoration:underline;cursor:pointer}
+.ig-consent .btn svg{width:18px;height:18px}
+.ig-on .ig-consent{display:none}
+@media (max-width:860px){
+  .ig-on .ig-grid{grid-template-columns:1fr;gap:16px}
+  .ig-consent{flex-direction:column;align-items:stretch;padding:20px}
+  .ig-consent .btn{justify-content:center}
+}
+
 /* ---------- Scroll-Intro (Film, vorgerendert) ---------- */
 .film{position:relative;height:1200vh;background:var(--bg)}
 .film-pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:radial-gradient(ellipse 80% 70% at 50% 45%,#fffdfa 0%,var(--bg) 70%)}

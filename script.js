@@ -211,6 +211,23 @@ const REVIEWS=[
   paint();fromScroll();tilt();
 })();
 
+/* ---------- Instagram-Beiträge: erst nach Klick laden (DSGVO) ---------- */
+(()=>{
+  const box=$("#igGrid"),btn=$("#igLoad");if(!box||!btn)return;
+  const KEY="kb-ig-ok";
+  function load(){
+    const blk=box.closest(".ig-block");if(blk.classList.contains("ig-on"))return;
+    blk.classList.add("ig-on");
+    $$(".ig-post",box).forEach(p=>{const u=`https://www.instagram.com/p/${p.dataset.ig}/`;
+      p.innerHTML=`<blockquote class="instagram-media" data-instgrm-permalink="${u}?utm_source=ig_embed" data-instgrm-version="14"><a href="${u}" target="_blank" rel="noopener">Beitrag auf Instagram ansehen</a></blockquote>`});
+    if(window.instgrm){window.instgrm.Embeds.process();return}
+    const s=document.createElement("script");s.async=true;s.src="https://www.instagram.com/embed.js";document.body.appendChild(s);
+  }
+  btn.addEventListener("click",()=>{try{localStorage.setItem(KEY,"1")}catch(e){}load()});
+  let ok=false;try{ok=localStorage.getItem(KEY)==="1"}catch(e){}
+  if(ok)load();
+})();
+
 /* ---------- FAQ (Accordion) ---------- */
 const FAQ=[
   ["Welche Dächer macht KB Bedachungen?","Wir sind auf Flachdächer spezialisiert, vor allem Foliendächer für Häuser, Terrassen, Balkone, Garagen und Carports."],
