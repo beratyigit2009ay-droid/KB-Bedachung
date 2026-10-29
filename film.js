@@ -117,7 +117,8 @@ function start() {
     if (!blobs.length) return;
     const c = Math.round(posAt(cur));
     for (let k = 0; k <= 12; k++) {
-      const f = c + dir * k;
+      let f = c + dir * k;
+      if (f > N) f -= N;
       if (f >= 1 && f <= N) want(f);
     }
     for (let k = 1; k <= 4; k++) {
@@ -194,7 +195,7 @@ function start() {
       css(ui.logo, "transform", `translateY(${(-40 * lo).toFixed(1)}px) scale(${r3(1 - .05 * lo)})`);
       css(ui.logo, "visibility", lo >= 1 ? "hidden" : "");
     }
-    if (ui.hint) css(ui.hint, "opacity", String(r3(1 - clamp(s / .03))));
+    if (ui.hint) css(ui.hint, "opacity", String(r3(1 - ease(clamp((s - .86) / .04)) + ease(clamp((s - .985) / .015)))));
     css(stage, "opacity", String(r3(ease(clamp((s - .02) / .09)))));
     for (const l of ui.lines) {
       const o = win01(s, l.a, l.b);
@@ -226,8 +227,13 @@ function start() {
     paintUI(s);
   }
 
-  /* ---------- Scroll-Kopplung mit weichem Nachlauf ---------- */
-  const still = /filmshot/.test(location.search); /* nur für Testbilder */
+  /* ---------- Ablauf: der Film läuft von selbst als Endlosschleife ----------
+     s geht in DUR Sekunden von 0 bis 1 (Logo, Film, Abspann, Weissblende)
+     und beginnt dann von vorn. Läuft nur, solange der Film im Bild ist. */
+  const DUR = 36;
+  const shot = location.search.match(/filmshot=([\d.]+)/); /* nur für Testbilder: ?filmshot=0.4 */
+  const still = !!shot;
+  let playT = shot ? +shot[1] * DUR : 0;
   let target = 0, cur = 0, raf = 0, need = true, last = performance.now();
   /* Lage des Abschnitts nur bei Größenänderung messen. Beim Scrollen
      reicht scrollY – so muss der Browser nie mitten im Bild das Layout
@@ -241,17 +247,15 @@ function start() {
   function tick(now) {
     raf = 0;
     const dt = Math.min(.1, (now - last) / 1000); last = now;
-    const d = target - cur;
-    if (Math.abs(d) > 1e-5) dir = d > 0 ? 1 : -1;
-    cur = (Math.abs(d) < .0002 || still) ? target : cur + d * (1 - Math.exp(-dt * 4));
     if (!inView() || document.hidden) { setInFilm(false); return; }
+    if (ready && !still) playT = (playT + dt) % DUR;
+    cur = target = playT / DUR;
     if (need) { lastS = -1; drawn = -1; need = false; }
     paint(cur);
     prefetch();
-    if (Math.abs(target - cur) > .0001 || pending.size) raf = requestAnimationFrame(tick);
+    raf = requestAnimationFrame(tick);
   }
   function kick() {
-    target = progress();
     const vis = inView();
     /* Springt man genau an den Rand des Abschnitts, läuft keine Schleife
        mehr – die Seite muss trotzdem wieder normal werden. */
@@ -274,7 +278,7 @@ function start() {
   /* ---------- Start: Logo steht, im Hintergrund lädt der Film ---------- */
   film.classList.add("film-loading");
   measure();
-  cur = target = progress();
+  cur = target = playT / DUR;
   paintUI(cur);
   kick();
 
