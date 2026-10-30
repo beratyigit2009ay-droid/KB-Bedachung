@@ -1,13 +1,12 @@
 /* =========================================================
-   KB Bedachungen – Scroll-Intro (film.js)
-   Spielt den vorgerenderten Film (Blender/Cycles, 399 Bilder) als
-   Bildfolge auf einem <canvas> ab. Zwischen zwei Bildern wird weich
-   überblendet, so läuft der Film beim Scrollen stufenlos – ohne die
-   Sprünge, die ein gescrubbtes <video> macht.
-   Die Bilder kommen in wenigen Paketen, grob nach fein: nach dem ersten
-   Paket (jedes 8. Bild) läuft der Film schon, die übrigen füllen nach.
-   Logo, Texte, Schritte, Abspann und Weissblende hängen wie bisher an
-   der Scrollposition, rückwärts läuft alles natürlich zurück.
+   KB Bedachungen – Intro-Film (film.js)
+   Der vorgerenderte Film (Blender/Cycles) läuft als echtes Video in
+   einer ruhigen Endlosschleife. Das Video ist auf 30 Bilder pro Sekunde
+   zwischengerechnet und an schnellen Kameraschwenks verlangsamt, so
+   läuft es gleichmässig und ohne Ruckeln; der Browser spielt es mit der
+   Grafikkarte ab.
+   Logo, Texte, Schritte, Abspann und Weissblende folgen der Stelle im
+   Film (s = 0..1), die aus der Abspielzeit abgelesen wird.
    ========================================================= */
 const film = document.getElementById("film");
 if (film) start();
@@ -15,148 +14,42 @@ if (film) start();
 function start() {
   const clamp = v => (v < 0 ? 0 : v > 1 ? 1 : v);
 
-  /* ---------- Zeitachse: Bild 1..N deckt s = 0.04 .. 1.00 ab ---------- */
-  const S0 = 0.04, S1 = 1.0;
-  let N = 399;
-  const posAt = s => 1 + clamp((s - S0) / (S1 - S0)) * (N - 1); /* Bild als Kommazahl */
-
   /* ---------- Quellen: quer = 16:9, Hochformat = quadratisch ---------- */
-  const BASE = "assets/film/";
-  const SRC = { wide: { m: "w.json", w: 1280, h: 720 }, sq: { m: "s.json", w: 720, h: 720 } };
+  const SRC = { wide: "assets/film/film-w", sq: "assets/film/film-s" };
   const pick = () => (innerHeight > innerWidth && innerWidth <= 900 ? "sq" : "wide");
 
-  const stage  = document.getElementById("filmStage");
-  const canvas = document.getElementById("filmCanvas");
-  const skip   = document.getElementById("filmSkip");
-  const ctx = canvas && canvas.getContext ? canvas.getContext("2d", { alpha: false }) : null;
+  /* Stelle im Film s für die Abspielzeit, alle 0,25 s (aus dem Schnitt
+     berechnet, damit Texte und Schritte genau zum Bild passen) */
+  const DUR = 36, STEP = .25;
+  const SMAP = [0,.0069,.0139,.0208,.0278,.0347,.042,.0501,.0583,.0665,.0746,.0828,.091,.0992,.1073,.1155,.1236,.1317,.1396,.1473,.1548,.1621,.1692,.1764,.1836,.1911,.1987,.2065,.2145,.2227,.2309,.239,.2472,.2554,.2635,.2717,.2799,.2881,.2962,.3044,.3126,.3207,.3289,.3371,.3452,.3534,.3616,.3698,.3779,.3861,.3943,.4024,.4106,.4188,.4269,.4351,.4433,.4515,.4596,.4678,.476,.4841,.4923,.5005,.5086,.5168,.5249,.5328,.5404,.5475,.5542,.5605,.5665,.5723,.5778,.5833,.5888,.5943,.5999,.6057,.6115,.6176,.6237,.63,.6362,.6422,.6481,.6536,.6589,.6639,.6685,.673,.6773,.6815,.6855,.6896,.6936,.6976,.7016,.7057,.71,.7143,.7188,.7235,.7285,.7336,.7391,.7448,.751,.7576,.7647,.7721,.7799,.7879,.796,.804,.8117,.8191,.826,.8324,.8385,.8443,.8498,.8552,.8604,.8655,.8707,.8759,.8812,.8867,.8924,.8984,.9048,.9116,.919,.9267,.9347,.9428,.951,.9592,.9673,.9755,.9837,.9918,1];
+  const sAt = t => {
+    const x = clamp(t / DUR) * (SMAP.length - 1), i = Math.min(SMAP.length - 2, Math.floor(x));
+    return SMAP[i] + (SMAP[i + 1] - SMAP[i]) * (x - i);
+  };
+  const tAt = s => { /* Umkehrung, nur für Testbilder */
+    let i = 0; while (i < SMAP.length - 2 && SMAP[i + 1] < s) i++;
+    return (i + clamp((s - SMAP[i]) / ((SMAP[i + 1] - SMAP[i]) || 1))) * STEP;
+  };
+
+  const stage = document.getElementById("filmStage");
+  const video = document.getElementById("filmVideo");
+  const skip  = document.getElementById("filmSkip");
 
   const off = () => {
     film.classList.remove("film-loading", "film-ready");
     film.classList.add("film-off");
     document.body.classList.remove("in-film");
+    if (video) { video.pause(); video.removeAttribute("src"); video.load(); }
   };
 
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduce || !stage || !ctx || typeof Blob === "undefined") { off(); return; }
+  /* H.264 (MP4) kann jeder Browser; WebM nur als Ersatz */
+  const EXT = !video || !video.canPlayType ? "" : video.canPlayType('video/mp4; codecs="avc1.4d401f"') ? ".mp4" : video.canPlayType('video/webm; codecs="vp9"') ? ".webm" : "";
+  if (reduce || !stage || !EXT) { off(); return; }
+  video.muted = true;
 
-  /* Überspringen: direkt zur Seite, ohne den Film im Schnelldurchlauf */
+  /* Überspringen: direkt zur Seite */
   if (skip) skip.addEventListener("click", () => scrollTo({ top: film.offsetTop + film.offsetHeight, behavior: "instant" }));
-
-  /* ---------- Bilder laden ---------- */
-  let variant = null, ready = false, gen = 0, gotBytes = false;
-  let blobs = [];          /* blobs[f] = WebP-Daten von Bild f (1..N) */
-  const cache = new Map(); /* entpackte Bilder rund um die aktuelle Stelle */
-  const pending = new Set();
-  const MAXC = 28;
-
-  const bitmapOK = typeof createImageBitmap === "function";
-  function decode(blob) {
-    if (bitmapOK) return createImageBitmap(blob);
-    return new Promise((res, rej) => {
-      const img = new Image(), u = URL.createObjectURL(blob);
-      img.onload = () => { URL.revokeObjectURL(u); res(img); };
-      img.onerror = () => { URL.revokeObjectURL(u); rej(new Error("bild")); };
-      img.src = u;
-    });
-  }
-  const drop = bm => { if (bm && bm.close) try { bm.close(); } catch (e) {} };
-
-  async function load(kind) {
-    const my = ++gen;
-    const res = await fetch(BASE + SRC[kind].m, { cache: "force-cache" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const man = await res.json();
-    if (my !== gen) return;
-    gotBytes = true;
-    variant = kind; N = man.n;
-    blobs = new Array(N + 1);
-    for (const bm of cache.values()) drop(bm);
-    cache.clear(); pending.clear();
-    canvas.width = SRC[kind].w; canvas.height = SRC[kind].h;
-    drawn = -1;
-    for (let i = 0; i < man.packs.length; i++) {
-      const p = man.packs[i];
-      const r = await fetch(BASE + p.file, { cache: "force-cache" });
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      const buf = await r.blob();
-      if (my !== gen) return;
-      for (const [f, o, l] of p.frames) blobs[f] = buf.slice(o, o + l, "image/webp");
-      if (i === 0) {
-        /* erstes und letztes Bild sofort bereithalten */
-        await want(Math.round(posAt(cur)));
-        if (my !== gen) return;
-        onFirst();
-      }
-      prefetch(); kick();
-    }
-  }
-
-  /* Bild f entpacken (falls nötig) und im Zwischenspeicher halten */
-  function want(f) {
-    if (!blobs[f] || cache.has(f) || pending.has(f)) return Promise.resolve();
-    pending.add(f);
-    const my = gen;
-    return decode(blobs[f]).then(bm => {
-      pending.delete(f);
-      if (my !== gen) { drop(bm); return; }
-      cache.set(f, bm);
-      trim();
-      drawn = -1; kick();
-    }).catch(() => pending.delete(f));
-  }
-  /* Nur die Bilder rund um die aktuelle Stelle behalten (Speicher) */
-  function trim() {
-    if (cache.size <= MAXC) return;
-    const c = posAt(cur);
-    const far = [...cache.keys()].sort((a, b) => Math.abs(b - c) - Math.abs(a - c));
-    while (cache.size > MAXC) { const f = far.shift(); drop(cache.get(f)); cache.delete(f); }
-  }
-  /* Vorausladen in Scrollrichtung, ein paar Bilder auch zurück */
-  let dir = 1;
-  function prefetch() {
-    if (!blobs.length) return;
-    const c = Math.round(posAt(cur));
-    for (let k = 0; k <= 12; k++) {
-      const f = c + dir * k;
-      if (f >= 1 && f <= N) want(f);
-    }
-    for (let k = 1; k <= 4; k++) {
-      const f = c - dir * k;
-      if (f >= 1 && f <= N) want(f);
-    }
-  }
-
-  /* nächstes entpacktes Bild unter-/oberhalb einer Stelle */
-  function near(f, step) {
-    for (let g = f; g >= 1 && g <= N; g += step) if (cache.has(g)) return g;
-    return 0;
-  }
-
-  /* ---------- Zeichnen: zwei Nachbarbilder weich überblendet ---------- */
-  let drawn = -1;
-  function draw(pos) {
-    if (!ready) return;
-    const a = Math.floor(pos);
-    let la = near(a, -1), lb = near(a + 1, 1);
-    if (!la && !lb) return;
-    if (!la) la = lb;
-    if (!lb) lb = la;
-    /* Nur direkte Nachbarn überblenden. Fehlt ein Bild dazwischen (lädt
-       noch), steht das nähere scharf da – sonst gäbe es Doppelbilder. */
-    if (lb - la > 1) { if (pos - la < lb - pos) lb = la; else la = lb; }
-    const t = lb === la ? 0 : (pos - la) / (lb - la);
-    const key = la * 1e4 + lb + Math.round(t * 255) / 256;
-    if (key === drawn) return;
-    drawn = key;
-    const W = canvas.width, H = canvas.height;
-    ctx.globalAlpha = 1;
-    ctx.drawImage(cache.get(la), 0, 0, W, H);
-    if (lb !== la && t > 0.004) {
-      ctx.globalAlpha = t;
-      ctx.drawImage(cache.get(lb), 0, 0, W, H);
-      ctx.globalAlpha = 1;
-    }
-  }
 
   /* ---------- Texte und Überblendungen (wie im alten Player) ---------- */
   const ui = {
@@ -194,7 +87,7 @@ function start() {
       css(ui.logo, "transform", `translateY(${(-40 * lo).toFixed(1)}px) scale(${r3(1 - .05 * lo)})`);
       css(ui.logo, "visibility", lo >= 1 ? "hidden" : "");
     }
-    if (ui.hint) css(ui.hint, "opacity", String(r3(1 - clamp(s / .03))));
+    if (ui.hint) css(ui.hint, "opacity", String(r3(1 - ease(clamp((s - .86) / .04)) + ease(clamp((s - .985) / .015)))));
     css(stage, "opacity", String(r3(ease(clamp((s - .02) / .09)))));
     for (const l of ui.lines) {
       const o = win01(s, l.a, l.b);
@@ -217,76 +110,78 @@ function start() {
     if (ui.skip) { css(ui.skip, "opacity", s > .87 ? "0" : "1"); css(ui.skip, "pointerEvents", s > .87 ? "none" : ""); }
   }
 
-
   let lastS = -1;
   function paint(s) {
-    if (ready) draw(posAt(s));
     if (s === lastS) return;
     lastS = s;
     paintUI(s);
   }
 
-  /* ---------- Scroll-Kopplung mit weichem Nachlauf ---------- */
-  const still = /filmshot/.test(location.search); /* nur für Testbilder */
-  let target = 0, cur = 0, raf = 0, need = true, last = performance.now();
-  /* Lage des Abschnitts nur bei Größenänderung messen. Beim Scrollen
-     reicht scrollY – so muss der Browser nie mitten im Bild das Layout
-     neu berechnen. */
+  /* ---------- Ablauf ----------
+     Das Video läuft nur, solange der Abschnitt im Bild ist. Lage des
+     Abschnitts nur bei Größenänderung messen, beim Scrollen reicht scrollY. */
+  const shot = location.search.match(/filmshot=([\d.]+)/); /* nur für Testbilder: ?filmshot=0.4 */
+  let ready = false, raf = 0, variant = null;
   let fTop = 0, fH = 1;
   const measure = () => { const r = film.getBoundingClientRect(); fTop = r.top + scrollY; fH = r.height; };
-  const progress = () => { const span = fH - innerHeight; return span > 0 ? clamp((scrollY - fTop) / span) : 0; };
   const inView = () => { const y = scrollY; return y + innerHeight > fTop && y < fTop + fH; };
   if ("ResizeObserver" in window) new ResizeObserver(() => { measure(); kick(); }).observe(document.body);
 
-  function tick(now) {
+  function tick() {
     raf = 0;
-    const dt = Math.min(.1, (now - last) / 1000); last = now;
-    const d = target - cur;
-    if (Math.abs(d) > 1e-5) dir = d > 0 ? 1 : -1;
-    cur = (Math.abs(d) < .0002 || still) ? target : cur + d * (1 - Math.exp(-dt * 4));
-    if (!inView() || document.hidden) { setInFilm(false); return; }
-    if (need) { lastS = -1; drawn = -1; need = false; }
-    paint(cur);
-    prefetch();
-    if (Math.abs(target - cur) > .0001 || pending.size) raf = requestAnimationFrame(tick);
+    if (!inView() || document.hidden) { setInFilm(false); video.pause(); return; }
+    paint(sAt(video.currentTime));
+    raf = requestAnimationFrame(tick);
+  }
+  function play() {
+    if (shot || !video.paused) return;
+    const p = video.play();
+    if (p && p.catch) p.catch(() => {
+      /* Autoplay gesperrt (z. B. Stromsparmodus): beim ersten Tippen starten */
+      const go = () => { removeEventListener("pointerdown", go); removeEventListener("keydown", go); video.play().catch(() => {}); };
+      addEventListener("pointerdown", go); addEventListener("keydown", go);
+    });
   }
   function kick() {
-    target = progress();
-    const vis = inView();
-    /* Springt man genau an den Rand des Abschnitts, läuft keine Schleife
-       mehr – die Seite muss trotzdem wieder normal werden. */
-    if (!vis) setInFilm(false);
-    if (!raf && vis && !document.hidden) { last = performance.now(); raf = requestAnimationFrame(tick); }
+    const vis = inView() && !document.hidden;
+    if (!vis) { setInFilm(false); video.pause(); return; }
+    if (ready) play();
+    if (!raf) raf = requestAnimationFrame(tick);
   }
 
-  /* Drehen des Geräts: passende Fassung nachladen, Bildstand behalten */
+  /* Drehen des Geräts: passende Fassung, gleiche Stelle */
   let rzT = 0;
-  function swap() {
-    const k = pick();
-    if (!ready || k === variant) return;
-    load(k).catch(() => {});
+  function load(k) {
+    const t = video.currentTime || 0, was = ready;
+    variant = k;
+    video.src = SRC[k] + EXT;
+    if (was) video.addEventListener("loadedmetadata", () => { video.currentTime = t; kick(); }, { once: true });
   }
+  function swap() { const k = pick(); if (k !== variant) load(k); }
   addEventListener("scroll", kick, { passive: true });
-  addEventListener("resize", () => { measure(); need = true; kick(); clearTimeout(rzT); rzT = setTimeout(swap, 500); });
-  addEventListener("orientationchange", () => { need = true; clearTimeout(rzT); rzT = setTimeout(swap, 500); });
+  addEventListener("resize", () => { measure(); kick(); clearTimeout(rzT); rzT = setTimeout(swap, 500); });
   document.addEventListener("visibilitychange", kick);
 
-  /* ---------- Start: Logo steht, im Hintergrund lädt der Film ---------- */
+  /* ---------- Start: Logo steht, bis das Video läuft ---------- */
   film.classList.add("film-loading");
   measure();
-  cur = target = progress();
-  paintUI(cur);
-  kick();
+  paintUI(0);
 
-  /* Lädt nichts, bleibt das Logo stehen und man scrollt normal weiter.
-     Kommt gar nichts an, wird der Film ganz übersprungen. */
-  let waited = 0;
-  const watch = setInterval(() => {
-    if (ready) { clearInterval(watch); return; }
-    waited += 1000;
-    if (waited >= 20000 && !gotBytes) { clearInterval(watch); bail(); }
-  }, 1000);
+  function onReady() {
+    if (ready) return;
+    clearTimeout(watch);
+    ready = true;
+    film.classList.remove("film-loading");
+    film.classList.add("film-ready");
+    lastS = -1;
+    if (shot) { video.pause(); video.currentTime = tAt(+shot[1]); }
+    kick();
+  }
+  video.addEventListener("canplay", onReady);
+  video.addEventListener("error", () => { if (!ready) bail(); });
 
+  /* Kommt nichts an, wird der Film übersprungen */
+  const watch = setTimeout(() => { if (!ready && video.readyState < 2) bail(); }, 20000);
   function bail() {
     if (film.classList.contains("film-off") || ready) return;
     const r = film.getBoundingClientRect();
@@ -295,16 +190,6 @@ function start() {
     if (inside) scrollTo({ top: film.offsetTop + film.offsetHeight, behavior: "instant" });
   }
 
-  function onFirst() {
-    if (ready) { need = true; kick(); return; }
-    clearInterval(watch);
-    ready = true;
-    film.classList.remove("film-loading");
-    film.classList.add("film-ready");
-    need = true; lastS = -1;
-    paint(cur);
-    kick();
-  }
-
-  load(pick()).catch(() => { clearInterval(watch); bail(); });
+  load(pick());
+  kick();
 }
