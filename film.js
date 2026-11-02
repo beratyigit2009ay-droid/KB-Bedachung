@@ -122,6 +122,10 @@ function start() {
      Abschnitts nur bei Größenänderung messen, beim Scrollen reicht scrollY. */
   const shot = location.search.match(/filmshot=([\d.]+)/); /* nur für Testbilder: ?filmshot=0.4 */
   let ready = false, raf = 0, variant = null;
+  /* Autoplay gesperrt (iPhone im Stromsparmodus): ruhiges Standbild
+     zeigen, beim ersten Tippen startet der Film */
+  let blocked = false;
+  const STILL = .115;
   let fTop = 0, fH = 1;
   const measure = () => { const r = film.getBoundingClientRect(); fTop = r.top + scrollY; fH = r.height; };
   const inView = () => { const y = scrollY; return y + innerHeight > fTop && y < fTop + fH; };
@@ -130,22 +134,29 @@ function start() {
   function tick() {
     raf = 0;
     if (!inView() || document.hidden) { setInFilm(false); video.pause(); return; }
-    paint(sAt(video.currentTime));
+    paint(blocked && video.paused ? STILL : sAt(video.currentTime));
     raf = requestAnimationFrame(tick);
   }
   function play() {
     if (shot || !video.paused) return;
     const p = video.play();
     if (p && p.catch) p.catch(() => {
-      /* Autoplay gesperrt (z. B. Stromsparmodus): beim ersten Tippen starten */
-      const go = () => { removeEventListener("pointerdown", go); removeEventListener("keydown", go); video.play().catch(() => {}); };
+      if (blocked || !video.paused) return;
+      blocked = true;
+      onReady();
+      const go = () => {
+        removeEventListener("pointerdown", go); removeEventListener("keydown", go);
+        video.play().then(() => { blocked = false; }).catch(() => {});
+      };
       addEventListener("pointerdown", go); addEventListener("keydown", go);
     });
   }
   function kick() {
     const vis = inView() && !document.hidden;
     if (!vis) { setInFilm(false); video.pause(); return; }
-    if (ready) play();
+    /* play() gleich aufrufen: Safari auf dem iPhone lädt ein Video
+       erst, wenn es abgespielt werden soll */
+    play();
     if (!raf) raf = requestAnimationFrame(tick);
   }
 
@@ -154,6 +165,7 @@ function start() {
   function load(k) {
     const t = video.currentTime || 0, was = ready;
     variant = k;
+    video.poster = "assets/film/poster-" + (k === "wide" ? "w" : "s") + ".jpg";
     video.src = SRC[k] + EXT;
     if (was) video.addEventListener("loadedmetadata", () => { video.currentTime = t; kick(); }, { once: true });
   }
@@ -169,7 +181,6 @@ function start() {
 
   function onReady() {
     if (ready) return;
-    clearTimeout(watch);
     ready = true;
     film.classList.remove("film-loading");
     film.classList.add("film-ready");
@@ -177,11 +188,11 @@ function start() {
     if (shot) { video.pause(); video.currentTime = tAt(+shot[1]); }
     kick();
   }
-  video.addEventListener("canplay", onReady);
+  /* Bereit, sobald das erste Bild da ist oder der Film läuft */
+  for (const ev of ["loadeddata", "canplay", "playing"]) video.addEventListener(ev, onReady);
+  /* Nur wenn das Video gar nicht geladen werden kann, fällt der Film weg;
+     ein langsames Netz lässt einfach das Logo etwas länger stehen */
   video.addEventListener("error", () => { if (!ready) bail(); });
-
-  /* Kommt nichts an, wird der Film übersprungen */
-  const watch = setTimeout(() => { if (!ready && video.readyState < 2) bail(); }, 20000);
   function bail() {
     if (film.classList.contains("film-off") || ready) return;
     const r = film.getBoundingClientRect();
