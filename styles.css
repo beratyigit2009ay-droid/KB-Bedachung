@@ -623,18 +623,21 @@ footer{background:var(--bg-2);padding-block:70px 30px;border-top:1px solid var(-
   .film-hint{bottom:calc(78px + env(safe-area-inset-bottom,0px))}
 }
 
-/* Hochformat (Handy): der quadratische Film steht als ruhiges Band in
-   voller Breite im oberen Bereich, Texte und Abspann hängen direkt an
-   seiner Unterkante auf hellem Grund – nichts liegt über dem Bild.
+/* Hochformat (Handy): der Film (eigene 4:5-Fassung) steht groß in voller
+   Breite oben, Texte, Schritte und Abspann stehen darunter auf hellem
+   Grund – nichts liegt über dem Bild. Unten bleibt immer genug Platz für
+   drei Textzeilen, „Scrollen“ und „Weiter zur Seite“; auf kurzen Handys
+   wird das Bild dafür etwas flacher zugeschnitten.
    --band = Unterkante des Films. Bei fast quadratischen Fenstern
    (Tablet quer/hoch) bleibt es beim formatfüllenden Zuschnitt. */
 @media (orientation:portrait) and (max-width:900px) and (max-aspect-ratio:16/25){
-  .film-pin{--band:calc(50% + 50vw - 7%)}
-  .film-stage{top:calc(50% - 50vw - 7%);bottom:auto;left:0;right:0;height:100vw}
-  .film-veil{background:linear-gradient(to top,rgba(247,244,240,.95) 0%,rgba(247,244,240,.35) 9%,rgba(247,244,240,0) 22%)}
-  .film-lines p{top:calc(var(--band) + 26px);bottom:auto}
-  .film-end{top:calc(var(--band) + 30px);bottom:auto}
-  .film-steps{top:calc(12px + env(safe-area-inset-top,0px))}
+  .film-pin{--top:env(safe-area-inset-top,0px);--band:calc(var(--top) + min(125vw, 100% - 300px - var(--top) - env(safe-area-inset-bottom,0px)))}
+  .film-stage{top:var(--top);bottom:auto;left:0;right:0;height:calc(var(--band) - var(--top))}
+  .film-veil{background:linear-gradient(to top,rgba(247,244,240,.95) 0%,rgba(247,244,240,.35) 8%,rgba(247,244,240,0) 18%)}
+  .film-lines p{top:calc(var(--band) + 24px);bottom:auto}
+  .film-end{top:calc(var(--band) + 28px);bottom:auto}
+  .film-steps{top:calc(var(--band) + 18px);left:50%;transform:translateX(-50%);white-space:nowrap}
+  .film-steps li{font-size:.76rem;padding:6px 0}
 }
 
 /* Reduzierte Bewegung: kein Film, auch ohne JavaScript */

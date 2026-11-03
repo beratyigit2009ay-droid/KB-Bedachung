@@ -4,6 +4,8 @@
    fünf Bilder (Haus, Schweißnaht, Dachaufbau, Flachdach von oben,
    Haus nah) mit langsamen, gleichmäßigen Kamerafahrten und weichen
    Überblendungen. Der Browser spielt es mit der Grafikkarte ab.
+   Fürs Handy gibt es eine eigene Hochformat-Fassung (4:5), in der jedes
+   Bild auf sein Motiv ausgerichtet ist.
    Logo, Texte, Schritte, Abspann und Weissblende folgen der Stelle im
    Film (s = 0..1), die aus der Abspielzeit abgelesen wird.
    ========================================================= */
@@ -13,9 +15,9 @@ if (film) start();
 function start() {
   const clamp = v => (v < 0 ? 0 : v > 1 ? 1 : v);
 
-  /* ---------- Quellen: quer = 16:9, Hochformat = quadratisch ---------- */
-  const SRC = { wide: "assets/film/film-w", sq: "assets/film/film-s" };
-  const pick = () => (innerHeight > innerWidth && innerWidth <= 900 ? "sq" : "wide");
+  /* ---------- Quellen: quer = 16:9, Hochformat = 4:5 ---------- */
+  const SRC = { wide: "assets/film/film-w", tall: "assets/film/film-p" };
+  const pick = () => (innerHeight > innerWidth && innerWidth <= 900 ? "tall" : "wide");
 
   /* Stelle im Film s für die Abspielzeit, alle 0,25 s (aus dem Schnitt
      berechnet, damit Texte und Schritte genau zum Bild passen) */
@@ -164,7 +166,7 @@ function start() {
   function load(k) {
     const t = video.currentTime || 0, was = ready;
     variant = k;
-    video.poster = "assets/film/poster-" + (k === "wide" ? "w" : "s") + ".jpg";
+    video.poster = "assets/film/poster-" + (k === "wide" ? "w" : "p") + ".jpg";
     video.src = SRC[k] + EXT;
     if (was) video.addEventListener("loadedmetadata", () => { video.currentTime = t; kick(); }, { once: true });
   }
